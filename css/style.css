@@ -602,3 +602,38 @@ canvas#weeklyCheckChart {
     display: block;
     margin: 0 auto;
 }
+
+/* Export Controls */
+.export-week-controls {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    margin-left: 12px;
+}
+
+.export-week-input {
+    padding: 6px 8px;
+    border: 1px solid var(--line-strong);
+    font-family: inherit;
+    width: 110px;
+    background-color: #fff;
+}
+
+.btn-export-image {
+    background: #ffffff;
+    border: 1px solid var(--line-strong);
+    border-radius: 999px;
+    padding: 6px 12px;
+    font-size: 0.85rem;
+    cursor: pointer;
+    white-space: nowrap;
+}
+
+.btn-export-image:hover {
+    background: var(--paper-warm);
+}
+
+.btn-export-image:disabled {
+    color: var(--ink-muted);
+    cursor: default;
+}

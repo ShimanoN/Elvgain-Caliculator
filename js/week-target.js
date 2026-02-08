@@ -62,6 +62,29 @@ async function loadData() {
     // 既存の行があり、かつ週が変わっていなければ再生成しない判定を入れると良いが、
     // ここではシンプルに毎回作り直す (loadDataは週変更時と初期ロード時のみ呼ばれる前提にする)
     await renderSchedule(weekInfo, currentTotal, targetElevation);
+
+    // 同期用にlocalStorageにも保存
+    try {
+        localStorage.setItem('elv_selected_week', targetKey);
+    } catch (e) {
+        console.warn('Could not write elv_selected_week to localStorage', e);
+    }
+
+    // カスタムイベントでロード完了を通知 (外部から週指定して待機する用途向け)
+    document.dispatchEvent(new CustomEvent('week-target-loaded', {
+        detail: {
+            iso_year: weekInfo.iso_year,
+            week_number: weekInfo.week_number,
+            start_date: weekInfo.start_date,
+            end_date: weekInfo.end_date
+        }
+    }));
+
+    // エクスポート用の週入力欄があれば現在週で更新
+    const exportWeekInput = document.getElementById('export-week-input');
+    if (exportWeekInput && !exportWeekInput.dataset.userEdited) {
+        exportWeekInput.value = targetKey;
+    }
 }
 
 /**
@@ -290,9 +313,33 @@ function applyPreset(value) {
  * @param {number} offset 
  */
 async function changeWeek(offset) {
-    currentDate.setDate(currentDate.getDate() + (offset * 7));
+    const next = new Date(currentDate);
+    next.setDate(next.getDate() + (offset * 7));
+    currentDate = next;
     await loadData();
 }
+
+/**
+ * ISO週 (例: 2026, 7) を指定して表示切替を行う
+ * @param {number} isoYear
+ * @param {number} weekNumber
+ */
+async function setWeekByISO(isoYear, weekNumber) {
+    // ISO週の月曜を求める: 年の1/4 を基準に第1週の月曜日を求め、そこからオフセット
+    const jan4 = new Date(isoYear, 0, 4);
+    const jan4DayNum = (jan4.getDay() + 6) % 7; // 0=Mon..6=Sun
+    const mondayOfWeek1 = new Date(jan4);
+    mondayOfWeek1.setDate(jan4.getDate() - jan4DayNum);
+
+    const targetDate = new Date(mondayOfWeek1);
+    targetDate.setDate(mondayOfWeek1.getDate() + (weekNumber - 1) * 7);
+
+    currentDate = targetDate;
+    await loadData();
+}
+
+// グローバルに公開して外部から呼べるようにする
+window.setWeekByISO = setWeekByISO;
 
 // イベントリスナー
 targetInput.addEventListener('blur', saveTarget);
@@ -309,5 +356,28 @@ for (const btn of presetButtons) {
 prevWeekBtn.addEventListener('click', () => changeWeek(-1));
 nextWeekBtn.addEventListener('click', () => changeWeek(1));
 
-// 初期ロード
-loadData();
+// 初期ロード: まずlocalStorageの同期キーを確認して可能ならそちらを優先する
+(function initialLoad() {
+    const saved = (function () {
+        try { return localStorage.getItem('elv_selected_week'); } catch (e) { return null; }
+    })();
+
+    if (saved) {
+        const m = saved.match(/(\d{4})-W(\d{2})/i);
+        if (m) {
+            const isoYear = Number(m[1]);
+            const weekNumber = Number(m[2]);
+            // setWeekByISO を呼ぶ（内部で loadData が呼ばれる）
+            if (typeof window.setWeekByISO === 'function') {
+                window.setWeekByISO(isoYear, weekNumber).catch((e) => {
+                    console.warn('setWeekByISO failed, falling back to loadData', e);
+                    loadData();
+                });
+                return;
+            }
+        }
+    }
+
+    // フォールバックで現在日付のロード
+    loadData();
+})();

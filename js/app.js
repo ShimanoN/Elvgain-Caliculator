@@ -113,7 +113,7 @@ async function saveData() {
     }
 
     const existing = await getDayLog(date);
-    const weekInfo = getISOWeekInfo(new Date(date));
+    const weekInfo = getISOWeekInfo(parseDateLocal(date));
     const total = (part1 ?? 0) + (part2 ?? 0);
 
     const record = {
@@ -122,6 +122,8 @@ async function saveData() {
         elevation_part2: part2,
         elevation_total: total,
         subjective_condition: condition,
+        daily_plan_part1: existing?.daily_plan_part1 ?? null,
+        daily_plan_part2: existing?.daily_plan_part2 ?? null,
         iso_year: weekInfo.iso_year,
         week_number: weekInfo.week_number,
         timezone: "Asia/Tokyo",
@@ -158,6 +160,7 @@ async function changeDate(offset) {
 
     // 日付更新
     dateInput.value = nextDateStr;
+    weekBaseDate = parseDateLocal(nextDateStr);
 
     // データ再読み込み
     await loadData();
@@ -170,7 +173,7 @@ async function changeDate(offset) {
  * 週進捗エリアの更新
  */
 async function updateWeekProgress(dateOverride) {
-    const baseDate = dateOverride || weekBaseDate || parseDateLocal(dateInput.value);
+    const baseDate = dateOverride || parseDateLocal(dateInput.value);
     const weekInfo = getISOWeekInfo(baseDate);
 
     // 表示更新
@@ -179,6 +182,14 @@ async function updateWeekProgress(dateOverride) {
     }
 
     const targetKey = `${weekInfo.iso_year}-W${String(weekInfo.week_number).padStart(2, '0')}`;
+
+    // 同期用の選択キーを保存（他ページと週選択を共有）
+    try {
+        localStorage.setItem('elv_selected_week', targetKey);
+    } catch (e) {
+        console.warn('Could not write elv_selected_week to localStorage', e);
+    }
+
     const targetRecord = await getWeekTarget(targetKey);
     const currentTotal = await calculateWeekTotal(weekInfo.iso_year, weekInfo.week_number);
 
@@ -287,12 +298,12 @@ async function updateWeekProgress(dateOverride) {
     }
 }
 
-    function changeWeek(offset) {
-        const next = new Date(weekBaseDate);
-        next.setDate(next.getDate() + (offset * 7));
-        weekBaseDate = next;
-        updateWeekProgress(weekBaseDate);
-    }
+function changeWeek(offset) {
+    const next = new Date(weekBaseDate);
+    next.setDate(next.getDate() + (offset * 7));
+    weekBaseDate = next;
+    updateWeekProgress(weekBaseDate);
+}
 
 // イベントリスナー
 part1Input.addEventListener('blur', saveData);

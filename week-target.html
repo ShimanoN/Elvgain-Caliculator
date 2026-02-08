@@ -16,6 +16,11 @@
     <main>
         <div class="top-actions">
             <a class="week-target-link" href="index.html">日次入力に戻る</a>
+            <button id="btn-export-schedule" class="btn-export-image" type="button" data-export-target="weekly-schedule-section" data-filename-prefix="Elevation_Loom_schedule">週間スケジュールを画像で出力</button>
+            <div class="export-week-controls">
+                <input id="export-week-input" class="export-week-input" placeholder="YYYY-Wnn" value="">
+                <button id="btn-export-week" class="btn-export-image" type="button" data-export-target="main" data-get-week-from="export-week-input" data-filename-prefix="Elevation_Loom_week">指定週を出力</button>
+            </div>
         </div>
         <!-- 今週の目標設定 -->
         <section class="current-week">
@@ -59,7 +64,7 @@
             </div>
 
             <!-- 週間スケジュール -->
-            <div class="weekly-schedule">
+            <div class="weekly-schedule" id="weekly-schedule-section">
                 <h3>週間スケジュール・予実</h3>
                 <table>
                     <thead>
@@ -87,6 +92,8 @@
     <script src="js/backup.js"></script>
     <script src="js/calculations.js"></script>
     <script src="js/week-target.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/html2canvas@1.4.1/dist/html2canvas.min.js"></script>
+    <script src="js/export-image.js"></script>
 </body>
 
 </html>

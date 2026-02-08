@@ -60,6 +60,11 @@
         return { key, count: snapshot.day_logs.length };
     }
 
+    function listBackups() {
+        const meta = readMeta();
+        return Array.isArray(meta.history) ? meta.history.slice() : [];
+    }
+
     function shouldAutoBackup() {
         const meta = readMeta();
         if (!meta.lastAt) return true;
@@ -96,7 +101,8 @@
 
     window.elvBackup = {
         createBackup,
-        scheduleBackup
+        scheduleBackup,
+        listBackups
     };
 
     if (document.readyState === 'loading') {

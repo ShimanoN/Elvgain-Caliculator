@@ -39,14 +39,16 @@
             </div>
         </section>
 
-        <!-- 週進捗エリア -->
+        <!-- 今週の進捗 -->
         <section class="week-progress-section">
+            <h2>今週の進捗</h2>
             <div class="week-progress">
-                <p>今週の進捗（<span id="week-range"></span>）</p>
-                <p>目標: <span id="week-target">未設定</span></p>
-                <p>現在: <span id="week-current">0</span>m</p>
-                <p id="week-diff-area" style="display:none;">差分: <span id="week-diff"></span>（<span
-                        id="week-percentage"></span>）</p>
+                <p>現在: <span id="weekly-total">0</span>m / 目標: <span id="weekly-target">---</span>m</p>
+                <p>進捗率: <span id="weekly-progress">0%</span></p>
+                <p>あと <span id="weekly-remaining">0</span>m</p>
+            </div>
+            <div class="chart-container">
+                <canvas id="weeklyCheckChart" width="800" height="400"></canvas>
             </div>
 
             <!-- 週目標設定へのリンク -->
@@ -60,6 +62,7 @@
     <script src="iso-week.js"></script>
     <script src="db.js"></script>
     <script src="calculations.js"></script>
+    <script src="chart.js"></script> <!-- Chart Library -->
     <script src="test.js"></script>
     <script src="app.js"></script>
 </body>

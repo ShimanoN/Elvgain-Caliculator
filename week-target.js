@@ -8,6 +8,7 @@ const weekRangeSpan = document.getElementById('week-range');
 const targetInput = document.getElementById('target-input');
 const currentTotalSpan = document.getElementById('current-total');
 const forecastTotalSpan = document.getElementById('forecast-total');
+const weeklyPlanTotalSpan = document.getElementById('weekly-plan-total');
 const forecastDiffSpan = document.getElementById('forecast-diff');
 const prevWeekBtn = document.getElementById('prev-week');
 const nextWeekBtn = document.getElementById('next-week');
@@ -117,6 +118,12 @@ async function renderSchedule(weekInfo, currentTotal, targetElevation) {
         tdActual.textContent = '-';
         tr.appendChild(tdActual);
 
+        // 差異セル (読み取り専用)
+        const tdDiff = document.createElement('td');
+        tdDiff.className = 'diff-val';
+        tdDiff.textContent = '-';
+        tr.appendChild(tdDiff);
+
         scheduleBody.appendChild(tr);
     }
 
@@ -129,6 +136,7 @@ async function renderSchedule(weekInfo, currentTotal, targetElevation) {
  */
 async function updateScheduleValues(weekInfo, targetElevation) {
     let forecastTotal = 0;
+    let weeklyPlanTotal = 0;
 
     // 行をイテレート
     const rows = scheduleBody.querySelectorAll('tr');
@@ -141,11 +149,7 @@ async function updateScheduleValues(weekInfo, targetElevation) {
         const plan2 = log?.daily_plan_part2 ?? null;
         const actual = log?.elevation_total ?? null;
 
-        // Input値更新 (フォーカスがある場合は更新しない方が良いが、
-        // blurイベント後の更新なので、フォーカスは外れている前提。
-        // ただしTab移動時は次のInputにフォーカスがあるかも。
-        // document.activeElement チェックを入れる)
-
+        // Input値更新
         const input1 = tr.querySelector('.plan-part1');
         if (document.activeElement !== input1) {
             input1.value = plan1 ?? '';
@@ -160,24 +164,40 @@ async function updateScheduleValues(weekInfo, targetElevation) {
         const p1 = plan1 ?? 0;
         const p2 = plan2 ?? 0;
         const planSum = p1 + p2;
+
+        // 週の予定合計に加算（単純合計）
+        weeklyPlanTotal += planSum;
+
         const tdPlanTotal = tr.querySelector('.plan-total-val');
         tdPlanTotal.textContent = planSum > 0 ? `${planSum}m` : '-';
 
         const tdActual = tr.querySelector('.actual-val');
         tdActual.textContent = actual !== null ? `${actual}m` : '-';
 
+        // 差異計算 (実績がある場合のみ)
+        const tdDiff = tr.querySelector('.diff-val');
+        if (actual !== null) {
+            const diff = actual - planSum;
+            const sign = diff >= 0 ? '+' : ''; // 0は+0と表示するか、単に0とするか。ここでは+をつける
+            tdDiff.textContent = `${sign}${diff}m`;
+            // 色付けたい場合はクラス操作など
+        } else {
+            tdDiff.textContent = '-';
+        }
+
         // 見込み計算
         let valueForForecast = 0;
         if (actual !== null) {
             valueForForecast = actual;
         } else {
-            valueForForecast = (plan1 ?? 0) + (plan2 ?? 0);
+            valueForForecast = planSum;
         }
         forecastTotal += valueForForecast;
     }
 
     // 見込み合計表示更新
     forecastTotalSpan.textContent = forecastTotal;
+    weeklyPlanTotalSpan.textContent = weeklyPlanTotal;
 
     if (targetElevation !== null && targetElevation > 0) {
         const diff = forecastTotal - targetElevation;

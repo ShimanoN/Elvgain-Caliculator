@@ -100,6 +100,21 @@ async function getDayLogsByWeek(iso_year, week_number) {
 }
 
 /**
+ * Gets all DayLogs.
+ * @returns {Promise<any[]>}
+ */
+async function getAllDayLogs() {
+    const db = await initDB();
+    return new Promise((resolve, reject) => {
+        const transaction = db.transaction(['DayLog'], 'readonly');
+        const store = transaction.objectStore('DayLog');
+        const request = store.getAll();
+        request.onsuccess = () => resolve(request.result);
+        request.onerror = () => reject(request.error);
+    });
+}
+
+/**
  * Gets a WeekTarget by key.
  * @param {string} key "YYYY-Wnn"
  * @returns {Promise<any>}
@@ -127,6 +142,21 @@ async function saveWeekTarget(data) {
         const store = transaction.objectStore('WeekTarget');
         const request = store.put(data);
         request.onsuccess = () => resolve();
+        request.onerror = () => reject(request.error);
+    });
+}
+
+/**
+ * Gets all WeekTargets.
+ * @returns {Promise<any[]>}
+ */
+async function getAllWeekTargets() {
+    const db = await initDB();
+    return new Promise((resolve, reject) => {
+        const transaction = db.transaction(['WeekTarget'], 'readonly');
+        const store = transaction.objectStore('WeekTarget');
+        const request = store.getAll();
+        request.onsuccess = () => resolve(request.result);
         request.onerror = () => reject(request.error);
     });
 }

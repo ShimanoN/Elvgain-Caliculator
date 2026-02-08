@@ -122,3 +122,43 @@ button:focus {
 .week-nav h2 {
     margin: 0;
 }
+
+/* Forecast Summary */
+.forecast-summary {
+    margin-top: 1rem;
+    padding-top: 1rem;
+    border-top: 1px dashed #ccc;
+}
+
+.forecast-summary p {
+    margin: 0.5rem 0;
+    font-weight: bold;
+}
+
+/* Weekly Schedule Table */
+.weekly-schedule {
+    margin-top: 2rem;
+}
+
+.weekly-schedule table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-top: 1rem;
+}
+
+.weekly-schedule th,
+.weekly-schedule td {
+    border: 1px solid #ccc;
+    padding: 0.5rem;
+    text-align: center;
+}
+
+.weekly-schedule th {
+    background-color: #f0f0f0;
+    font-weight: normal;
+}
+
+.weekly-schedule input[type="number"] {
+    width: 80px;
+    text-align: right;
+}

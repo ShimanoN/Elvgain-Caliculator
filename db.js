@@ -18,6 +18,14 @@ async function initDB() {
             const db = event.target.result;
 
             // DayLog Store
+            // Fields:
+            // - date (key)
+            // - elevation_part1
+            // - elevation_part2
+            // - elevation_total
+            // - subjective_condition
+            // - daily_plan (New: implemented in v3.1)
+            // - iso_year, week_number (index)
             if (!db.objectStoreNames.contains('DayLog')) {
                 const dayLogStore = db.createObjectStore('DayLog', { keyPath: 'date' });
                 dayLogStore.createIndex('week', ['iso_year', 'week_number'], { unique: false });

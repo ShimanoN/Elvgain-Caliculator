@@ -27,7 +27,27 @@
                 <label>目標獲得標高: <input type="number" id="target-input" min="0" step="100">m</label>
             </div>
 
-            <p>現在の進捗: <span id="current-total">0</span>m</p>
+            <div class="forecast-summary">
+                <p>現在の実績: <span id="current-total">0</span>m</p>
+                <p>見込み合計: <span id="forecast-total">0</span>m <span id="forecast-diff"></span></p>
+            </div>
+
+            <!-- 週間スケジュール -->
+            <div class="weekly-schedule">
+                <h3>週間スケジュール・予実</h3>
+                <table>
+                    <thead>
+                        <tr>
+                            <th>日付</th>
+                            <th>予定 (Plan)</th>
+                            <th>実績 (Actual)</th>
+                        </tr>
+                    </thead>
+                    <tbody id="schedule-body">
+                        <!-- JSで動的生成 -->
+                    </tbody>
+                </table>
+            </div>
         </section>
 
         <nav>

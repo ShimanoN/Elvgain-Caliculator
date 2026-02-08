@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html lang="ja">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>獲得標高トレーニング鏡</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+
+<body>
+    <header>
+        <h1>獲得標高トレーニング鏡</h1>
+    </header>
+
+    <main>
+        <!-- 日付選択エリア -->
+        <div class="date-selector">
+            <button id="prev-day">前日</button>
+            <input type="date" id="current-date">
+            <button id="next-day">翌日</button>
+        </div>
+
+        <section class="elevation-input-section">
+            <h2>日次入力</h2>
+            <!-- 獲得標高入力 -->
+            <div class="elevation-input">
+                <label>1部（午前）<input type="number" id="part1" min="0" step="100"></label>
+                <label>2部（午後）<input type="number" id="part2" min="0" step="100"></label>
+                <p>合計: <span id="daily-total">0</span>m</p>
+            </div>
+
+            <!-- 主観コンディション -->
+            <div class="condition">
+                <p>主観コンディション</p>
+                <label><input type="radio" name="condition" value="good"> 良い</label>
+                <label><input type="radio" name="condition" value="normal"> 普通</label>
+                <label><input type="radio" name="condition" value="bad"> 悪い</label>
+            </div>
+        </section>
+
+        <!-- 週進捗エリア -->
+        <section class="week-progress-section">
+            <div class="week-progress">
+                <p>今週の進捗（<span id="week-range"></span>）</p>
+                <p>目標: <span id="week-target">未設定</span></p>
+                <p>現在: <span id="week-current">0</span>m</p>
+                <p id="week-diff-area" style="display:none;">差分: <span id="week-diff"></span>（<span
+                        id="week-percentage"></span>）</p>
+            </div>
+
+            <!-- 週目標設定へのリンク -->
+            <nav>
+                <a href="week-target.html">週目標を設定</a>
+            </nav>
+        </section>
+    </main>
+
+    <script type="module" src="app.js"></script>
+    <script type="module" src="test.js"></script>
+</body>
+
+</html>

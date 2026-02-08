@@ -1,0 +1,97 @@
+/* 
+ * Minimalism Styling 
+ * Allowed colors: #000000, #ffffff, #cccccc, browser default focus color
+ * Forbidden: gradients, shadows, animations, colorful accents
+ */
+
+body {
+    font-family: sans-serif;
+    color: #000000;
+    background-color: #ffffff;
+    max-width: 800px;
+    margin: 0 auto;
+    padding: 20px;
+}
+
+header {
+    border-bottom: 1px solid #000000;
+    margin-bottom: 20px;
+}
+
+h1, h2 {
+    font-size: 1.5rem;
+    font-weight: bold;
+}
+
+section {
+    margin-bottom: 30px;
+    padding: 10px;
+    border: 1px solid #cccccc;
+}
+
+.date-selector {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin-bottom: 20px;
+}
+
+input[type="date"],
+input[type="number"] {
+    border: 1px solid #000000;
+    padding: 5px;
+    font-family: inherit;
+    width: 120px;
+}
+
+input[type="number"] {
+    width: 60px;
+}
+
+button {
+    background-color: #ffffff;
+    color: #000000;
+    border: 1px solid #000000;
+    padding: 5px 10px;
+    cursor: pointer;
+}
+
+button:disabled {
+    color: #cccccc;
+    border-color: #cccccc;
+    cursor: default;
+}
+
+.elevation-input label {
+    display: block;
+    margin-bottom: 10px;
+}
+
+.condition p,
+.week-progress p {
+    margin-top: 0;
+    font-weight: bold;
+}
+
+.condition label {
+    margin-right: 15px;
+}
+
+.week-progress {
+    line-height: 1.6;
+}
+
+a {
+    color: #000000;
+    text-decoration: underline;
+}
+
+nav {
+    margin-top: 20px;
+}
+
+/* リンクやフォーカスの状態 */
+input:focus,
+button:focus {
+    /* ブラウザデフォルトのフォーカススタイルを利用 */
+}

@@ -1,0 +1,37 @@
+<!DOCTYPE html>
+<html lang="ja">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>週目標設定 - 獲得標高トレーニング鏡</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+
+<body>
+    <header>
+        <h1>週目標設定</h1>
+    </header>
+
+    <main>
+        <!-- 今週の目標設定 -->
+        <section class="current-week">
+            <h2>Week <span id="week-number"></span></h2>
+            <p><span id="week-range"></span></p>
+
+            <div class="target-input-area">
+                <label>目標獲得標高: <input type="number" id="target-input" min="0" step="100">m</label>
+            </div>
+
+            <p>現在の進捗: <span id="current-total">0</span>m</p>
+        </section>
+
+        <nav>
+            <a href="index.html">日次入力に戻る</a>
+        </nav>
+    </main>
+
+    <script type="module" src="week-target.js"></script>
+</body>
+
+</html>

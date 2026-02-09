@@ -2,6 +2,7 @@
 // - getWeekTarget, saveWeekTarget, getDayLog, saveDayLog, getDayLogsByWeek (from db.js)
 // - getISOWeekInfo (from iso-week.js)
 // - calculateWeekTotal (from calculations.js)
+// - formatDateLocal, parseDateLocal (from date-utils.js)
 
 const weekNumberSpan = document.getElementById('week-number');
 const weekRangeSpan = document.getElementById('week-range');
@@ -17,29 +18,6 @@ const presetButtons = document.querySelectorAll('.preset-btn');
 
 // 表示中の週の基準日（初期値は今日）
 let currentDate = new Date();
-
-/**
- * 日付をローカルタイムで YYYY-MM-DD 文字列に変換
- */
-function formatDateLocal(date) {
-  const y = date.getFullYear();
-  const m = String(date.getMonth() + 1).padStart(2, '0');
-  const d = String(date.getDate()).padStart(2, '0');
-  return `${y}-${m}-${d}`;
-}
-
-function parseDateLocal(str) {
-  if (!str || typeof str !== 'string') {
-    console.error('Invalid date string:', str);
-    return new Date();
-  }
-  const [y, m, d] = str.split('-').map(Number);
-  if (isNaN(y) || isNaN(m) || isNaN(d)) {
-    console.error('Invalid date components:', str);
-    return new Date();
-  }
-  return new Date(y, m - 1, d);
-}
 
 /**
  * UIを現在の基準日で更新

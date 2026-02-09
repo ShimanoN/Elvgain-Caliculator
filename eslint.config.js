@@ -43,6 +43,8 @@ module.exports = [
         deleteWeekTarget: 'writable',
         getAllWeekTargets: 'writable',
         getISOWeekInfo: 'writable',
+        formatDateLocal: 'writable',
+        parseDateLocal: 'writable',
         calculateWeekTotal: 'writable',
         calculateWeekProgress: 'writable',
         renderChart: 'writable',
@@ -113,7 +115,7 @@ module.exports = [
         'error',
         {
           varsIgnorePattern:
-            '^(getDayLog|saveDayLog|deleteDayLog|getDayLogsByWeek|getAllDayLogs|getWeekTarget|saveWeekTarget|deleteWeekTarget|getAllWeekTargets|getISOWeekInfo|calculateWeekTotal|calculateWeekProgress|drawWeeklyChart|loadData)$',
+            '^(getDayLog|saveDayLog|deleteDayLog|getDayLogsByWeek|getAllDayLogs|getWeekTarget|saveWeekTarget|deleteWeekTarget|getAllWeekTargets|getISOWeekInfo|formatDateLocal|parseDateLocal|calculateWeekTotal|calculateWeekProgress|drawWeeklyChart|loadData)$',
           argsIgnorePattern: '^_',
           caughtErrorsIgnorePattern: '^_',
         },

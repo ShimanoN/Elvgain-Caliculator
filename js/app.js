@@ -2,6 +2,7 @@
 // - getDayLog, saveDayLog, getWeekTarget (from db.js)
 // - getISOWeekInfo (from iso-week.js)
 // - calculateWeekTotal, calculateWeekProgress (from calculations.js)
+// - formatDateLocal, parseDateLocal (from date-utils.js)
 
 const dateInput = document.getElementById('current-date');
 const part1Input = document.getElementById('part1');
@@ -25,33 +26,6 @@ const prevDayBtn = document.getElementById('prev-day');
 const nextDayBtn = document.getElementById('next-day');
 
 let weekBaseDate = new Date();
-
-/**
- * 日付をローカルタイムで YYYY-MM-DD 文字列に変換
- */
-function formatDateLocal(date) {
-  const y = date.getFullYear();
-  const m = String(date.getMonth() + 1).padStart(2, '0');
-  const d = String(date.getDate()).padStart(2, '0');
-  return `${y}-${m}-${d}`;
-}
-
-/**
- * "YYYY-MM-DD" 文字列をローカルタイム Date に変換
- * (new Date("YYYY-MM-DD") は UTC として解釈されるため使わない)
- */
-function parseDateLocal(str) {
-  if (!str || typeof str !== 'string') {
-    console.error('Invalid date string:', str);
-    return new Date();
-  }
-  const [y, m, d] = str.split('-').map(Number);
-  if (isNaN(y) || isNaN(m) || isNaN(d)) {
-    console.error('Invalid date components:', str);
-    return new Date();
-  }
-  return new Date(y, m - 1, d);
-}
 
 // 今日の日付を初期値として保持 (ローカルタイム)
 const TODAY_STR = formatDateLocal(new Date());

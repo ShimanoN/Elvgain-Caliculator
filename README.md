@@ -57,16 +57,25 @@ The project uses husky and lint-staged to automatically run ESLint and Prettier 
 │   ├── backup.js          # Backup/restore functionality
 │   ├── calculations.js    # Progress calculation logic
 │   ├── chart.js           # Chart rendering
+│   ├── date-utils.js      # Date formatting and parsing utilities
 │   ├── db.js              # IndexedDB database operations
 │   ├── export-image.js    # Image export functionality
 │   ├── iso-week.js        # ISO week calculations
-│   ├── sample-data.js     # Sample data for testing
-│   ├── test.js            # Test utilities
-│   └── week-target.js     # Weekly target management
+│   ├── sample-data.js     # Sample data generation for testing/demo
+│   ├── week-target.js     # Weekly target management
+│   └── dev/               # Development utilities
+│       └── test.js        # Test utilities (not loaded in production)
 ├── css/                    # Stylesheets
 │   └── style.css
+├── docs/                   # Documentation files
+│   ├── CODE_REVIEW_SUMMARY.md
+│   ├── CODE_WALKTHROUGH.md
+│   ├── LEARNING_PATH.md
+│   ├── QUICK_START_FOR_PLC_ENGINEERS.md
+│   ├── ROADMAP.md
+│   └── Elevation_Loom_MVP仕様書_final.md
 └── scripts/                # Utility scripts
-    └── run_local.sh
+    └── run_local.sh       # Local development server
 ```
 
 ## Architecture

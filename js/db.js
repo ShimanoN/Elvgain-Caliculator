@@ -55,14 +55,22 @@ async function initDB() {
  * @returns {Promise<any>}
  */
 async function getDayLog(date) {
-    const db = await initDB();
-    return new Promise((resolve, reject) => {
-        const transaction = db.transaction(['DayLog'], 'readonly');
-        const store = transaction.objectStore('DayLog');
-        const request = store.get(date);
-        request.onsuccess = () => resolve(request.result);
-        request.onerror = () => reject(request.error);
-    });
+    try {
+        const db = await initDB();
+        return new Promise((resolve, reject) => {
+            const transaction = db.transaction(['DayLog'], 'readonly');
+            const store = transaction.objectStore('DayLog');
+            const request = store.get(date);
+            request.onsuccess = () => resolve(request.result);
+            request.onerror = () => {
+                console.error('Error getting day log:', request.error);
+                reject(request.error);
+            };
+        });
+    } catch (error) {
+        console.error('Failed to get day log:', error);
+        throw error;
+    }
 }
 
 /**
@@ -71,14 +79,22 @@ async function getDayLog(date) {
  * @returns {Promise<void>}
  */
 async function saveDayLog(data) {
-    const db = await initDB();
-    return new Promise((resolve, reject) => {
-        const transaction = db.transaction(['DayLog'], 'readwrite');
-        const store = transaction.objectStore('DayLog');
-        const request = store.put(data);
-        request.onsuccess = () => resolve();
-        request.onerror = () => reject(request.error);
-    });
+    try {
+        const db = await initDB();
+        return new Promise((resolve, reject) => {
+            const transaction = db.transaction(['DayLog'], 'readwrite');
+            const store = transaction.objectStore('DayLog');
+            const request = store.put(data);
+            request.onsuccess = () => resolve();
+            request.onerror = () => {
+                console.error('Error saving day log:', request.error);
+                reject(request.error);
+            };
+        });
+    } catch (error) {
+        console.error('Failed to save day log:', error);
+        throw error;
+    }
 }
 
 /**

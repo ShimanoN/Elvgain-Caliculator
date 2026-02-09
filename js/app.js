@@ -41,7 +41,15 @@ function formatDateLocal(date) {
  * (new Date("YYYY-MM-DD") は UTC として解釈されるため使わない)
  */
 function parseDateLocal(str) {
+    if (!str || typeof str !== 'string') {
+        console.error('Invalid date string:', str);
+        return new Date();
+    }
     const [y, m, d] = str.split('-').map(Number);
+    if (isNaN(y) || isNaN(m) || isNaN(d)) {
+        console.error('Invalid date components:', str);
+        return new Date();
+    }
     return new Date(y, m - 1, d);
 }
 
@@ -101,8 +109,18 @@ async function saveData() {
     const part1Value = part1Input.value;
     const part2Value = part2Input.value;
 
+    // Input validation
     const part1 = part1Value === '' ? null : Number(part1Value);
     const part2 = part2Value === '' ? null : Number(part2Value);
+    
+    if (part1 !== null && (isNaN(part1) || part1 < 0)) {
+        console.error('Invalid value for part1:', part1Value);
+        return;
+    }
+    if (part2 !== null && (isNaN(part2) || part2 < 0)) {
+        console.error('Invalid value for part2:', part2Value);
+        return;
+    }
 
     let condition = null;
     for (const radio of conditionRadios) {
@@ -298,6 +316,10 @@ async function updateWeekProgress(dateOverride) {
     }
 }
 
+/**
+ * 週進捗エリアの変更
+ * @param {number} offset - Number of weeks to move (positive or negative)
+ */
 function changeWeek(offset) {
     const next = new Date(weekBaseDate);
     next.setDate(next.getDate() + (offset * 7));

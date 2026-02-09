@@ -4,6 +4,15 @@ document.addEventListener('DOMContentLoaded', () => {
     if (!buttons.length) return;
 
     async function exportElementAsImage(el, filenamePrefix) {
+        if (!el) {
+            console.error('Element not found for export');
+            alert('エクスポート対象の要素が見つかりませんでした');
+            return;
+        }
+        
+        // Validate filename prefix to prevent path traversal
+        const sanitizedPrefix = filenamePrefix.replace(/[^a-zA-Z0-9_-]/g, '_');
+        
         try {
             const canvas = await html2canvas(el, {
                 scale: 2,
@@ -14,7 +23,7 @@ document.addEventListener('DOMContentLoaded', () => {
             const a = document.createElement('a');
             const ts = new Date().toISOString().slice(0, 19).replace(/[:T]/g, '-');
             a.href = dataUrl;
-            a.download = `${filenamePrefix}_${ts}.png`;
+            a.download = `${sanitizedPrefix}_${ts}.png`;
             document.body.appendChild(a);
             a.click();
             a.remove();

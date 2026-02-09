@@ -1,6 +1,15 @@
 function drawWeeklyChart(canvasId, weekData, weekTarget) {
     const canvas = document.getElementById(canvasId);
-    if (!canvas) return;
+    if (!canvas) {
+        console.error('Canvas element not found:', canvasId);
+        return;
+    }
+    
+    // Validate input data
+    if (!Array.isArray(weekData)) {
+        console.error('Invalid weekData: expected array');
+        return;
+    }
 
     const { ctx, width, height } = setupCanvas(canvas);
     const palette = getPalette();
@@ -92,14 +101,15 @@ function drawWeeklyChart(canvasId, weekData, weekTarget) {
         }
 
         const dayMap = { '日': 'Sun', '月': 'Mon', '火': 'Tue', '水': 'Wed', '木': 'Thu', '金': 'Fri', '土': 'Sat' };
-        const dayEn = dayMap[d.dayName] || d.dayName;
+        const dayEn = dayMap[d.dayName] || 'Day';
         ctx.fillStyle = palette.text;
         ctx.textAlign = 'center';
         ctx.textBaseline = 'top';
         ctx.font = `600 12px ${fontFamily}`;
         ctx.fillText(dayEn, xCenter, height - padding.bottom + 10);
 
-        const dateLabel = d.date.split('-').slice(1).join('/');
+        // Sanitize date for display (ensure it's a valid date string)
+        const dateLabel = d.date && typeof d.date === 'string' ? d.date.split('-').slice(1).join('/') : '';
         ctx.fillStyle = palette.textMuted;
         ctx.font = `11px ${fontFamily}`;
         ctx.fillText(dateLabel, xCenter, height - padding.bottom + 26);

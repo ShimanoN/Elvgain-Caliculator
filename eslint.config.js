@@ -55,6 +55,8 @@ module.exports = [
         clearAllData: 'writable',
         loadSampleData: 'writable',
         loadData: 'writable',
+        // CommonJS global used in some files
+        module: 'writable',
       },
     },
     rules: {
@@ -127,6 +129,13 @@ module.exports = [
       'require-yield': 'error',
       'use-isnan': 'error',
       'valid-typeof': 'error',
+    },
+  },
+  // Tests use ESM imports — treat test files as modules for parsing
+  {
+    files: ['test/**/*.js', 'test/*.js'],
+    languageOptions: {
+      sourceType: 'module',
     },
   },
 ];

@@ -1,4 +1,5 @@
 #!/bin/sh
-. "$(dirname \"$0\")/_/husky.sh"
+# Simple pre-commit hook: run lint-staged directly to avoid husky/_ placeholder issues
+set -e
 
 npx --no-install lint-staged

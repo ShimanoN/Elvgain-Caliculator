@@ -68,12 +68,16 @@ The project uses husky and lint-staged to automatically run ESLint and Prettier 
 ├── css/                    # Stylesheets
 │   └── style.css
 ├── docs/                   # Documentation files
-│   ├── CODE_REVIEW_SUMMARY.md
-│   ├── CODE_WALKTHROUGH.md
-│   ├── LEARNING_PATH.md
-│   ├── QUICK_START_FOR_PLC_ENGINEERS.md
-│   ├── ROADMAP.md
-│   └── Elevation_Loom_MVP仕様書_final.md
+│   ├── DOCUMENTATION_INDEX.md           # 📖 Start here for documentation guide
+│   ├── DEVELOPMENT_PHASE_ASSESSMENT.md  # Current development phase
+│   ├── KPI_ROADMAP.md                   # Goals and roadmap with KPIs
+│   ├── BEGINNER_WORKFLOW.md             # Workflow for IT beginners
+│   ├── LEARNING_PATH.md                 # Learning path for PLC engineers
+│   ├── QUICK_START_FOR_PLC_ENGINEERS.md # Quick start guide
+│   ├── CODE_WALKTHROUGH.md              # Detailed code explanation
+│   ├── CODE_REVIEW_SUMMARY.md           # Code review results
+│   ├── ROADMAP.md                       # Development roadmap
+│   └── Elevation_Loom_MVP仕様書_final.md # MVP specification (Japanese)
 └── scripts/                # Utility scripts
     └── run_local.sh       # Local development server
 ```
@@ -83,6 +87,19 @@ The project uses husky and lint-staged to automatically run ESLint and Prettier 
 This application uses vanilla JavaScript without ES6 modules. JavaScript files share functions via the global scope, with dependencies documented at the top of each file. The load order of script tags in HTML files is important for proper functionality.
 
 Data is stored locally using IndexedDB for day logs and weekly targets.
+
+## Documentation
+
+This project has comprehensive documentation for various audiences:
+
+- **📖 [Documentation Index](docs/DOCUMENTATION_INDEX.md)** - Start here to find the right documentation for your needs
+- **📊 [Development Phase Assessment](docs/DEVELOPMENT_PHASE_ASSESSMENT.md)** - Current project status and phase
+- **🎯 [KPI Roadmap](docs/KPI_ROADMAP.md)** - Goals and roadmap with KPIs
+- **👨‍💻 [Beginner Workflow](docs/BEGINNER_WORKFLOW.md)** - Standard workflow for IT beginners
+- **🔧 [Quick Start for PLC Engineers](docs/QUICK_START_FOR_PLC_ENGINEERS.md)** - Quick start guide for PLC/ST engineers
+- **📚 [Learning Path](docs/LEARNING_PATH.md)** - Comprehensive learning path for web development
+
+For a complete list of documentation, see the [Documentation Index](docs/DOCUMENTATION_INDEX.md).
 
 ## Contributing
 

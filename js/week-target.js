@@ -180,7 +180,10 @@ async function updateScheduleValues(weekInfo, targetElevation) {
     try {
       log = await getDayLog(dateStr);
     } catch (e) {
-      console.error(`[updateScheduleValues] Error getting day log for ${dateStr}:`, e);
+      console.error(
+        `[updateScheduleValues] Error getting day log for ${dateStr}:`,
+        e
+      );
       log = undefined; // log を undefined のままにしても、null チェックで処理される
     }
 
@@ -226,9 +229,10 @@ async function updateScheduleValues(weekInfo, targetElevation) {
 
     // 見込み計算
     // 実績があるかどうかの判定：elevation_part1 または elevation_part2 が入力されている
-    const hasActual = log?.elevation_part1 !== null || log?.elevation_part2 !== null;
+    const hasActual =
+      log?.elevation_part1 !== null || log?.elevation_part2 !== null;
     let valueForForecast = 0;
-    
+
     if (hasActual) {
       // 実績がある場合は elevation_total を使用（計算済みの合計）
       valueForForecast = actual ?? 0;

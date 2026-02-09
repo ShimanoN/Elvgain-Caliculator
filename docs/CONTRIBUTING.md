@@ -34,7 +34,14 @@ npm run e2e:install
 - ユニットテスト: `npm test`
 - E2E テスト: `npm run e2e`
 
-コミット前に自動で `lint-staged` が実行されます。
+コミット時の自動チェック
+
+**Pre-commit フック** (`lint-staged`) が自動実行され、ステージされたファイルに対して以下を実行します：
+- `js/**/*.js`: ESLint + Prettier
+- `e2e/**/*.js`: Prettier（フォーマットのみ）
+- `*.{html,css}`: Prettier
+
+ESLint が修正不可なエラーを検出した場合はコミットがブロックされます。詳細は `.husky/pre-commit` を参照。
 
 CI
 

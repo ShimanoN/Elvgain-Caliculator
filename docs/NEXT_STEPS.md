@@ -25,13 +25,19 @@
 短期優先（残タスク）
 1. ✅ Playwright ブラウザキャッシュを CI に追加（インストール時間短縮）
 2. ✅ E2E ジョブの分割・並列化と失敗時アーティファクトのアップロード
-3. `lint-staged` ルールや Husky フックの微調整（不要停止を避ける）
+3. ✅ `lint-staged` ルールや Husky フックの微調整（不要な停止を避ける）
 4. ✅ CI の flaky 対策（Playwright retries 等）
 
 実装内容：
-- E2E テストを複数ファイルに分割（daily-input, week-progress, week-target）
-- CI で複数テストと複数ブラウザ（Chromium, Firefox）を並列実行
-- テスト失敗時にはテストファイル・ブラウザ別のアーティファクトを収集
-- Playwright config で CI 環境時のみ worker 数を制限し、2回のリトライを設定
+- **lint-staged**: `js/**/*.js` のみに ESLint を適用（設定ファイル・テストファイルは除外）
+- **Husky**: pre-commit フックにわかりやすいメッセージを追加
+- **CONTRIBUTING.md**: lint-staged の動作を明確に説明
 
-次のアクション提案: `lint-staged` と Husky フックの微調整を実施します。
+すべての短期優先タスクが完了しました！
+
+📋 完了サマリー：
+- Playwright ブラウザキャッシュで CI 実行時間を削減
+- E2E テストを分割・並列化（3ファイル × 2ブラウザ = 6ジョブ）
+- ESLint と Prettier の役割分担を明確化
+- アーティファクト自動収集で失敗時デバッグが容易に
+- Playwright リトライで flaky テスト対策

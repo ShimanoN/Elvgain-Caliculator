@@ -1,5 +1,13 @@
 #!/bin/sh
-# Simple pre-commit hook: run lint-staged directly to avoid husky/_ placeholder issues
+# Pre-commit hook: run lint-staged with detailed error reporting
 set -e
 
+echo "🔍 Running lint-staged for staged files..."
 npx --no-install lint-staged
+
+if [ $? -eq 0 ]; then
+  echo "✅ Pre-commit checks passed"
+else
+  echo "❌ Pre-commit checks failed. Please fix the errors and try again."
+  exit 1
+fi

@@ -33,8 +33,11 @@
   },
   "homepage": "https://github.com/ShimanoN/Elvgain-Caliculator#readme",
   "lint-staged": {
-    "*.js": [
+    "js/**/*.js": [
       "eslint --fix",
+      "prettier --write"
+    ],
+    "e2e/**/*.js": [
       "prettier --write"
     ],
     "*.{html,css}": [

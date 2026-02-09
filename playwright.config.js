@@ -15,10 +15,15 @@ export default defineConfig({
       name: 'chromium',
       use: { ...devices['Desktop Chrome'] },
     },
+    {
+      name: 'firefox',
+      use: { ...devices['Desktop Firefox'] },
+    },
   ],
   reporter: [
     ['html', { outputFolder: 'playwright-report' }],
     ['junit', { outputFile: 'test-results/e2e-results.xml' }],
   ],
   retries: process.env.CI ? 2 : 0,
+  workers: process.env.CI ? 2 : undefined,
 });

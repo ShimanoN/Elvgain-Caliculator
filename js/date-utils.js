@@ -1,6 +1,9 @@
 /**
  * Date utility functions for local time handling
  * These functions avoid UTC-related issues when working with date strings
+ *
+ * Note: These functions are intentionally global (not assigned to window)
+ * to maintain consistency with other utility files in this codebase.
  */
 
 /**

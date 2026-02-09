@@ -1,89 +1,131 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="ja">
-
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>週目標設定 - Elevation Loom</title>
-    <link rel="stylesheet" href="css/style.css">
-</head>
+    <link rel="stylesheet" href="css/style.css" />
+  </head>
 
-<body>
+  <body>
     <header>
-        <h1>週目標設定</h1>
+      <h1>週目標設定</h1>
     </header>
 
     <main>
-        <div class="top-actions">
-            <a class="week-target-link" href="index.html">日次入力に戻る</a>
-            <button id="btn-export-schedule" class="btn-export-image" type="button" data-export-target="weekly-schedule-section" data-filename-prefix="Elevation_Loom_schedule">週間スケジュールを画像で出力</button>
-            <div class="export-week-controls">
-                <input id="export-week-input" class="export-week-input" placeholder="YYYY-Wnn" value="">
-                <button id="btn-export-week" class="btn-export-image" type="button" data-export-target="main" data-get-week-from="export-week-input" data-filename-prefix="Elevation_Loom_week">指定週を出力</button>
-            </div>
+      <div class="top-actions">
+        <a class="week-target-link" href="index.html">日次入力に戻る</a>
+        <button
+          id="btn-export-schedule"
+          class="btn-export-image"
+          type="button"
+          data-export-target="weekly-schedule-section"
+          data-filename-prefix="Elevation_Loom_schedule"
+        >
+          週間スケジュールを画像で出力
+        </button>
+        <div class="export-week-controls">
+          <input
+            id="export-week-input"
+            class="export-week-input"
+            placeholder="YYYY-Wnn"
+            value=""
+          />
+          <button
+            id="btn-export-week"
+            class="btn-export-image"
+            type="button"
+            data-export-target="main"
+            data-get-week-from="export-week-input"
+            data-filename-prefix="Elevation_Loom_week"
+          >
+            指定週を出力
+          </button>
         </div>
-        <!-- 今週の目標設定 -->
-        <section class="current-week">
-            <div class="week-target-header">
-                <div>
-                    <h2>Week <span id="week-number"></span></h2>
-                    <p id="week-range" class="week-range"></p>
-                </div>
-                <div class="week-nav">
-                    <button id="prev-week">&lt; 前の週</button>
-                    <button id="next-week">次の週 &gt;</button>
-                </div>
-            </div>
+      </div>
+      <!-- 今週の目標設定 -->
+      <section class="current-week">
+        <div class="week-target-header">
+          <div>
+            <h2>Week <span id="week-number"></span></h2>
+            <p id="week-range" class="week-range"></p>
+          </div>
+          <div class="week-nav">
+            <button id="prev-week">&lt; 前の週</button>
+            <button id="next-week">次の週 &gt;</button>
+          </div>
+        </div>
 
-            <div class="target-metrics-grid">
-                <div class="metric-card target-input-area">
-                    <p class="metric-label">目標獲得標高</p>
-                    <div class="target-input-row">
-                        <input type="number" id="target-input" min="0" max="50000" step="100" aria-label="週間目標獲得標高">
-                        <span class="metric-unit">m</span>
-                    </div>
-                    <div class="preset-buttons">
-                        <button type="button" class="preset-btn" data-value="3500">攻め</button>
-                        <button type="button" class="preset-btn" data-value="3000">通常</button>
-                        <button type="button" class="preset-btn" data-value="2500">回復</button>
-                    </div>
-                </div>
-                <div class="metric-card">
-                    <p class="metric-label">現在の実績</p>
-                    <p class="metric-value"><span id="current-total">0</span><span class="metric-unit">m</span></p>
-                </div>
-                <div class="metric-card">
-                    <p class="metric-label">予定合計</p>
-                    <p class="metric-value"><span id="weekly-plan-total">0</span><span class="metric-unit">m</span></p>
-                </div>
-                <div class="metric-card">
-                    <p class="metric-label">見込み合計</p>
-                    <p class="metric-value"><span id="forecast-total">0</span><span class="metric-unit">m</span></p>
-                    <p class="metric-sub" id="forecast-diff"></p>
-                </div>
+        <div class="target-metrics-grid">
+          <div class="metric-card target-input-area">
+            <p class="metric-label">目標獲得標高</p>
+            <div class="target-input-row">
+              <input
+                type="number"
+                id="target-input"
+                min="0"
+                max="50000"
+                step="100"
+                aria-label="週間目標獲得標高"
+              />
+              <span class="metric-unit">m</span>
             </div>
-
-            <!-- 週間スケジュール -->
-            <div class="weekly-schedule" id="weekly-schedule-section">
-                <h3>週間スケジュール・予実</h3>
-                <table>
-                    <thead>
-                        <tr>
-                            <th>日付</th>
-                            <th>予定 (1部)</th>
-                            <th>予定 (2部)</th>
-                            <th>予定合計</th>
-                            <th>実績</th>
-                            <th>差異</th>
-                        </tr>
-                    </thead>
-                    <tbody id="schedule-body">
-                        <!-- JSで動的生成 -->
-                    </tbody>
-                </table>
+            <div class="preset-buttons">
+              <button type="button" class="preset-btn" data-value="3500">
+                攻め
+              </button>
+              <button type="button" class="preset-btn" data-value="3000">
+                通常
+              </button>
+              <button type="button" class="preset-btn" data-value="2500">
+                回復
+              </button>
             </div>
-        </section>
+          </div>
+          <div class="metric-card">
+            <p class="metric-label">現在の実績</p>
+            <p class="metric-value">
+              <span id="current-total">0</span
+              ><span class="metric-unit">m</span>
+            </p>
+          </div>
+          <div class="metric-card">
+            <p class="metric-label">予定合計</p>
+            <p class="metric-value">
+              <span id="weekly-plan-total">0</span
+              ><span class="metric-unit">m</span>
+            </p>
+          </div>
+          <div class="metric-card">
+            <p class="metric-label">見込み合計</p>
+            <p class="metric-value">
+              <span id="forecast-total">0</span
+              ><span class="metric-unit">m</span>
+            </p>
+            <p class="metric-sub" id="forecast-diff"></p>
+          </div>
+        </div>
 
+        <!-- 週間スケジュール -->
+        <div class="weekly-schedule" id="weekly-schedule-section">
+          <h3>週間スケジュール・予実</h3>
+          <table>
+            <thead>
+              <tr>
+                <th>日付</th>
+                <th>予定 (1部)</th>
+                <th>予定 (2部)</th>
+                <th>予定合計</th>
+                <th>実績</th>
+                <th>差異</th>
+              </tr>
+            </thead>
+            <tbody id="schedule-body">
+              <!-- JSで動的生成 -->
+            </tbody>
+          </table>
+        </div>
+      </section>
     </main>
 
     <!-- Scripts loaded systematically (Order is important) -->
@@ -94,6 +136,5 @@
     <script src="js/week-target.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/html2canvas@1.4.1/dist/html2canvas.min.js"></script>
     <script src="js/export-image.js"></script>
-</body>
-
+  </body>
 </html>

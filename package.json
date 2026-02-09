@@ -1,0 +1,44 @@
+{
+  "name": "elvgain-caliculator",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "directories": {
+    "doc": "docs"
+  },
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "lint": "eslint js/**/*.js",
+    "lint:fix": "eslint js/**/*.js --fix",
+    "format": "prettier --write \"js/**/*.js\" \"*.html\" \"css/**/*.css\"",
+    "format:check": "prettier --check \"js/**/*.js\" \"*.html\" \"css/**/*.css\"",
+    "prepare": "husky"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/ShimanoN/Elvgain-Caliculator.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "type": "commonjs",
+  "bugs": {
+    "url": "https://github.com/ShimanoN/Elvgain-Caliculator/issues"
+  },
+  "homepage": "https://github.com/ShimanoN/Elvgain-Caliculator#readme",
+  "lint-staged": {
+    "*.js": [
+      "eslint --fix",
+      "prettier --write"
+    ],
+    "*.{html,css}": [
+      "prettier --write"
+    ]
+  },
+  "devDependencies": {
+    "eslint": "^10.0.0",
+    "husky": "^9.1.7",
+    "lint-staged": "^16.2.7",
+    "prettier": "^3.8.1"
+  }
+}

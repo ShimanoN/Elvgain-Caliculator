@@ -29,7 +29,15 @@ function formatDateLocal(date) {
 }
 
 function parseDateLocal(str) {
+    if (!str || typeof str !== 'string') {
+        console.error('Invalid date string:', str);
+        return new Date();
+    }
     const [y, m, d] = str.split('-').map(Number);
+    if (isNaN(y) || isNaN(m) || isNaN(d)) {
+        console.error('Invalid date components:', str);
+        return new Date();
+    }
     return new Date(y, m - 1, d);
 }
 
@@ -116,9 +124,11 @@ async function renderSchedule(weekInfo, currentTotal, targetElevation) {
         const planInput1 = document.createElement('input');
         planInput1.type = 'number';
         planInput1.min = '0';
+        planInput1.max = '10000';
         planInput1.step = '100';
         planInput1.className = 'plan-part1';
         planInput1.dataset.date = dateStr;
+        planInput1.setAttribute('aria-label', `${d.getMonth() + 1}/${d.getDate()} 1部予定`);
         planInput1.addEventListener('blur', (e) => saveDailyPlan(dateStr, 'part1', e.target.value));
         tdPlan1.appendChild(planInput1);
         tr.appendChild(tdPlan1);
@@ -128,9 +138,11 @@ async function renderSchedule(weekInfo, currentTotal, targetElevation) {
         const planInput2 = document.createElement('input');
         planInput2.type = 'number';
         planInput2.min = '0';
+        planInput2.max = '10000';
         planInput2.step = '100';
         planInput2.className = 'plan-part2';
         planInput2.dataset.date = dateStr;
+        planInput2.setAttribute('aria-label', `${d.getMonth() + 1}/${d.getDate()} 2部予定`);
         planInput2.addEventListener('blur', (e) => saveDailyPlan(dateStr, 'part2', e.target.value));
         tdPlan2.appendChild(planInput2);
         tr.appendChild(tdPlan2);
@@ -243,6 +255,12 @@ async function updateScheduleValues(weekInfo, targetElevation) {
  */
 async function saveDailyPlan(dateStr, part, value) {
     const numValue = value === '' ? null : Number(value);
+    
+    // Input validation
+    if (numValue !== null && (isNaN(numValue) || numValue < 0)) {
+        console.error('Invalid plan value:', value);
+        return;
+    }
 
     const existing = await getDayLog(dateStr);
     const weekInfo = getISOWeekInfo(parseDateLocal(dateStr));
@@ -285,6 +303,12 @@ async function saveTarget() {
     const targetKey = `${weekInfo.iso_year}-W${String(weekInfo.week_number).padStart(2, '0')}`;
 
     const targetValue = targetInput.value === '' ? null : Number(targetInput.value);
+    
+    // Input validation
+    if (targetValue !== null && (isNaN(targetValue) || targetValue < 0)) {
+        console.error('Invalid target value:', targetInput.value);
+        return;
+    }
 
     const existing = await getWeekTarget(targetKey);
 

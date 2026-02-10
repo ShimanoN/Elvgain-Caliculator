@@ -29,6 +29,9 @@
   "author": "",
   "license": "MIT",
   "type": "commonjs",
+  "engines": {
+    "node": "^20.19.0 || ^22.13.0 || >=24.0.0"
+  },
   "bugs": {
     "url": "https://github.com/ShimanoN/Elvgain-Caliculator/issues"
   },

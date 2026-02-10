@@ -22,12 +22,12 @@
    （新規参加）           管理者・評価者          （Web開発初心者）
         │                     │                     │
         ↓                     ↓                     ↓
-   README.md            DEVELOPMENT_PHASE      QUICK_START_FOR
-   ↓                    ASSESSMENT             _PLC_ENGINEERS
+   README.md            DEVELOPMENT_PHASE_     QUICK_START_FOR_
+   ↓                    ASSESSMENT.md          PLC_ENGINEERS.md
    CONTRIBUTING.md      ↓                      ↓
-   ↓                    ROADMAP                LEARNING_PATH
-   CODE_WALKTHROUGH                            ↓
-                                               CODE_WALKTHROUGH
+   ↓                    ROADMAP.md             LEARNING_PATH.md
+   CODE_WALKTHROUGH.md                         ↓
+                                               CODE_WALKTHROUGH.md
 ```
 
 ---

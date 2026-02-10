@@ -1,0 +1,53 @@
+name: Deploy to GitHub Pages
+
+on:
+  push:
+    branches: [ main ]
+  workflow_dispatch: {}
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      pages: write
+      id-token: write
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+
+      - name: Install dependencies (if present)
+        run: |
+          if [ -f package.json ]; then npm ci; fi
+
+      - name: Build (if `build` script exists)
+        run: |
+          if [ -f package.json ] && grep -q '"build"' package.json; then npm run build; fi
+
+      - name: Prepare site artifact
+        run: |
+          rm -rf site_out
+          mkdir site_out
+          rsync -av --exclude='.git' --exclude='node_modules' --exclude='.github' --exclude='site_out' ./ site_out/
+
+      - name: Upload Pages artifact
+        uses: actions/upload-pages-artifact@v1
+        with:
+          path: site_out
+
+  deploy-page:
+    needs: deploy
+    runs-on: ubuntu-latest
+    permissions:
+      pages: write
+      id-token: write
+
+    steps:
+      - name: Deploy to GitHub Pages
+        uses: actions/deploy-pages@v1

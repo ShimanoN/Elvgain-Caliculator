@@ -20,4 +20,12 @@ describe('calculateWeekTotal error branches', () => {
     const res = await calculateWeekTotal(2026, 7);
     expect(res).toBe(0);
   });
+
+  it('getDayLogsByWeek が例外を投げた場合は 0 を返す', async () => {
+    global.getDayLogsByWeek = async () => {
+      throw new Error('db error');
+    };
+    const res = await calculateWeekTotal(2026, 7);
+    expect(res).toBe(0);
+  });
 });

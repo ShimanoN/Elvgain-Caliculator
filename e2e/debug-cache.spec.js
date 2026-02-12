@@ -3,11 +3,17 @@ import { test, expect } from '@playwright/test';
 test('デバッグ: IndexedDB キャッシュの persistence を確認', async ({
   page,
 }) => {
+  await page.addInitScript(() => { window.__E2E__ = true; });
+
   await page.goto('/');
 
   // Open DevTools console to log cache state
   const consoleMessages = [];
   page.on('console', (msg) => consoleMessages.push(msg.text()));
+
+  // Wait for page to be ready
+  await page.waitForSelector('#part1', { timeout: 10_000 });
+  await page.waitForSelector('#part2', { timeout: 10_000 });
 
   // Check initial cache state
   await page.evaluate(async () => {

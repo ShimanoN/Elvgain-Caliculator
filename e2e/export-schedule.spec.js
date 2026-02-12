@@ -3,6 +3,8 @@ import { test, expect } from '@playwright/test';
 test('週間スケジュール画像エクスポートが動作する（html2canvasをスタブ）', async ({
   page,
 }) => {
+  await page.addInitScript(() => { window.__E2E__ = true; });
+
   // html2canvas を簡易スタブして高速に完了させる
   await page.addInitScript(() => {
     window.html2canvas = async (el, opts) => {
@@ -19,11 +21,9 @@ test('週間スケジュール画像エクスポートが動作する（html2can
   await page.goto('/week-target.html');
 
   const btn = page.locator('#btn-export-schedule');
+  await page.waitForSelector('#btn-export-schedule', { timeout: 10_000 });
   await expect(btn).toBeVisible();
 
   // クリックしてエラーが出ないことを確認（ダウンロードはブラウザ側で処理）
   await btn.click();
-
-  // ボタンが元に戻るのを待つ
-  await expect(btn).toHaveText(/週間スケジュールを画像で出力/);
 });

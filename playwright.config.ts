@@ -9,6 +9,12 @@ export default defineConfig({
     command: 'npm run dev',
     port: 8000,
     reuseExistingServer: false,
+    // Increase timeout to allow dev server to fully start on CI
+    timeout: 120_000,
+    // Pass E2E env flag so app can use test-friendly behavior (mock backends etc.)
+    env: {
+      E2E: '1',
+    },
   },
   projects: [
     {

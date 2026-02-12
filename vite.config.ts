@@ -1,8 +1,8 @@
 import { defineConfig } from 'vite';
 import { resolve } from 'path';
 
-export default defineConfig({
-  base: '/Elvgain-Caliculator/',
+export default defineConfig(({ command }) => ({
+  base: command === 'build' ? '/Elvgain-Caliculator/' : '/',
   root: '.',
   publicDir: 'public',
   build: {
@@ -39,4 +39,4 @@ export default defineConfig({
     // Enable JSX/TSX transformation if needed
     loader: 'ts',
   },
-});
+}));

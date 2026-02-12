@@ -242,11 +242,34 @@ export function scheduleBackup(): void {
 }
 
 // ============================================================
+// Wrapped Save Functions with Auto-Backup
+// ============================================================
+
+/**
+ * Wrapped version of saveDayLog that triggers auto-backup
+ */
+export async function saveDayLogWithBackup(data: DayLog): Promise<void> {
+  await saveDayLog(data);
+  scheduleBackup();
+}
+
+/**
+ * Wrapped version of saveWeekTarget that triggers auto-backup
+ */
+export async function saveWeekTargetWithBackup(
+  data: WeekTarget
+): Promise<void> {
+  await saveWeekTarget(data);
+  scheduleBackup();
+}
+
+// ============================================================
 // Auto-Backup Initialization
 // ============================================================
 
 /**
- * Wrap save functions to trigger automatic backups
+ * Initialize automatic backup system
+ * Performs initial backup check if needed
  */
 function initAutoBackup(): void {
   if (shouldAutoBackup()) {

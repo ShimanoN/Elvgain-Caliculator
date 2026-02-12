@@ -3,12 +3,7 @@
  * Handles daily input, weekly progress display, and chart rendering
  */
 
-import {
-  getDayLog,
-  saveDayLog,
-  getDayLogsByWeek,
-  getWeekTarget,
-} from './db.js';
+import { getDayLog, getDayLogsByWeek, getWeekTarget } from './db.js';
 import type { DayLog } from './db.js';
 import { getISOWeekInfo } from './iso-week.js';
 import { calculateWeekTotal } from './calculations.js';
@@ -21,6 +16,9 @@ import {
 import { DAY_LABELS_CHART, MAX_DAYS_HISTORY } from './constants.js';
 import { drawWeeklyChart } from './chart.js';
 import type { ChartDayData } from './chart.js';
+// Import side effects for backup and export functionality
+import { saveDayLogWithBackup } from './backup.js';
+import './export-image.js';
 
 // ============================================================
 // DOM Element References
@@ -185,7 +183,7 @@ async function saveData(): Promise<void> {
       updated_at: new Date().toISOString(),
     };
 
-    await saveDayLog(record);
+    await saveDayLogWithBackup(record);
     dailyTotalSpan.textContent = String(total);
     await updateWeekProgress();
   } catch (error) {

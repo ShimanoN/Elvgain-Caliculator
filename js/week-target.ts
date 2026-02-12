@@ -3,7 +3,7 @@
  * Handles weekly target setting and daily plan scheduling
  */
 
-import { getWeekTarget, saveWeekTarget, getDayLog, saveDayLog } from './db.js';
+import { getWeekTarget, getDayLog } from './db.js';
 import type { DayLog, WeekTarget } from './db.js';
 import { getISOWeekInfo } from './iso-week.js';
 import { calculateWeekTotal } from './calculations.js';
@@ -14,6 +14,9 @@ import {
   getJPDayName,
 } from './formatters.js';
 import type { ISOWeekInfo } from './iso-week.js';
+// Import side effects for backup and export functionality
+import { saveDayLogWithBackup, saveWeekTargetWithBackup } from './backup.js';
+import './export-image.js';
 
 // ============================================================
 // DOM Element References
@@ -372,7 +375,7 @@ async function saveDailyPlan(
       updated_at: new Date().toISOString(),
     };
 
-    await saveDayLog(record);
+    await saveDayLogWithBackup(record);
 
     const targetVal =
       targetInput.value === '' ? null : Number(targetInput.value);
@@ -415,7 +418,7 @@ async function saveTarget(): Promise<void> {
       updated_at: new Date().toISOString(),
     };
 
-    await saveWeekTarget(record);
+    await saveWeekTargetWithBackup(record);
     await loadData();
   } catch (error) {
     console.error('Error saving week target:', error);

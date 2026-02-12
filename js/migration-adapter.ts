@@ -159,10 +159,10 @@ export async function migrateAllData(): Promise<{
 
     // Migrate weeks with only targets (no logs)
     for (const [weekKey, target] of targetsMap) {
-      if (!weekGroups.has(weekKey)) {
+      if (!weekGroups.has(weekKey) && target.iso_year && target.week_number) {
         const weekData = legacyToWeekData(
-          target.iso_year!,
-          target.week_number!,
+          target.iso_year,
+          target.week_number,
           target,
           []
         );

@@ -254,14 +254,15 @@ export async function loadWeekData(
     const docSnap = await getDoc(docRef);
 
     if (!docSnap.exists()) {
-      // No data exists - return empty week
+      // No data exists - return empty week with null timestamp
+      // The timestamp will be set when the document is first saved
       const emptyWeek: WeekData = {
         isoYear,
         isoWeek,
         target: { value: 0, unit: 'm' },
         dailyLogs: [],
-        createdAt: new Date(),
-        updatedAt: new Date(),
+        createdAt: new Date(0), // Epoch timestamp indicates not yet persisted
+        updatedAt: new Date(0), // Epoch timestamp indicates not yet persisted
       };
 
       return Ok(addMetadata(emptyWeek));
@@ -305,12 +306,15 @@ export async function saveWeekData(
     // Check if document exists to set createdAt correctly
     const docSnap = await getDoc(docRef);
     const exists = docSnap.exists();
+    const existingCreatedAt = exists
+      ? timestampToDate((docSnap.data() as WeekData).createdAt)
+      : new Date(); // Use current time for new documents (will be replaced by server)
 
     // Prepare document with timestamps
     const fullData: WeekData = {
       ...data,
       createdAt: exists
-        ? timestampToDate((docSnap.data() as WeekData).createdAt)
+        ? existingCreatedAt
         : (serverTimestamp() as unknown as Date),
       updatedAt: serverTimestamp() as unknown as Date,
     };
@@ -318,12 +322,12 @@ export async function saveWeekData(
     // Write to Firestore (authoritative)
     await setDoc(docRef, fullData);
 
-    // On success, update cache
+    // On success, update cache with actual timestamps
+    // Note: serverTimestamp() is a sentinel that Firestore replaces with actual time
+    // For cache, we use current time as an approximation
     const cacheData: WeekData = {
       ...fullData,
-      createdAt: exists
-        ? timestampToDate((docSnap.data() as WeekData).createdAt)
-        : new Date(),
+      createdAt: exists ? existingCreatedAt : new Date(),
       updatedAt: new Date(),
     };
     await saveToCache(weekKey, cacheData);

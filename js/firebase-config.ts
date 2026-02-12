@@ -104,9 +104,17 @@ export function isProductionFirebase(): boolean {
 /**
  * Get current user ID or null if not authenticated
  * For demo mode, returns 'demo-user'
+ *
+ * WARNING: Demo mode shares data across all users.
+ * This is for development only. Implement Firebase Auth for production.
  */
 export function getCurrentUserId(): string | null {
   if (!isProductionFirebase()) {
+    // Demo mode: All users share the same data
+    // This is INSECURE and only for development
+    console.warn(
+      'Running in demo mode - all users share data. Implement Firebase Auth for production.'
+    );
     return 'demo-user';
   }
 

@@ -116,7 +116,7 @@ VITE_FIREBASE_EMULATOR_HOST=localhost
 VITE_FIREBASE_EMULATOR_PORT=8080
 ```
 
-**Demo Mode**: If Firebase credentials are not configured, the app runs in demo mode with a mock user ID (`demo-user`).
+**Demo Mode**: If Firebase credentials are not configured, the app runs in demo mode with a mock user ID. **WARNING**: In demo mode, all users share the same data. This is intended for development only and should NOT be used in production. Implement Firebase Authentication for production deployment.
 
 ## Migration Guide
 

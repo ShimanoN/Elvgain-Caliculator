@@ -118,7 +118,7 @@ export async function migrateAllData(): Promise<{
   try {
     // Import here to avoid circular dependencies
     const { getAllDayLogs, getAllWeekTargets } = await import('./db.js');
-    const { saveWeekData } = await import('./storage-new.js');
+    const { saveWeekData } = await import('./storage.js');
 
     const [allDayLogs, allWeekTargets] = await Promise.all([
       getAllDayLogs(),

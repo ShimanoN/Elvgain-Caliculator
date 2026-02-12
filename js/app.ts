@@ -18,6 +18,7 @@ import { drawWeeklyChart } from './chart.js';
 import type { ChartDayData } from './chart.js';
 // Import side effects for backup and export functionality
 import { saveDayLogWithBackup } from './backup.js';
+import { setSelectedWeek } from './storage.js';
 import './export-image.js';
 
 // ============================================================
@@ -241,12 +242,8 @@ async function updateWeekProgress(dateOverride?: Date): Promise<void> {
 
   const targetKey = formatISOWeekKey(weekInfo.iso_year, weekInfo.week_number);
 
-  // Save selected week to localStorage for sync with other pages
-  try {
-    localStorage.setItem('elv_selected_week', targetKey);
-  } catch (e) {
-    console.warn('Could not write elv_selected_week to localStorage', e);
-  }
+  // Save selected week for sync with other pages
+  setSelectedWeek(targetKey);
 
   const targetRecord = await getWeekTarget(targetKey);
   const currentTotal = await calculateWeekTotal(

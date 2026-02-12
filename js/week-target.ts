@@ -16,6 +16,7 @@ import {
 import type { ISOWeekInfo } from './iso-week.js';
 // Import side effects for backup and export functionality
 import { saveDayLogWithBackup, saveWeekTargetWithBackup } from './backup.js';
+import { setSelectedWeek, getSelectedWeek } from './storage.js';
 import './export-image.js';
 
 // ============================================================
@@ -98,12 +99,8 @@ async function loadData(): Promise<void> {
     // Render weekly schedule
     await renderSchedule(weekInfo, currentTotal, targetElevation);
 
-    // Save selected week to localStorage for sync with other pages
-    try {
-      localStorage.setItem('elv_selected_week', targetKey);
-    } catch (e) {
-      console.warn('Could not write elv_selected_week to localStorage', e);
-    }
+    // Save selected week for sync with other pages
+    setSelectedWeek(targetKey);
 
     // Dispatch custom event for load completion
     document.dispatchEvent(
@@ -501,13 +498,7 @@ nextWeekBtn.addEventListener('click', () => changeWeek(1));
 // ============================================================
 
 (function initialLoad() {
-  const saved = (function () {
-    try {
-      return localStorage.getItem('elv_selected_week');
-    } catch (_e) {
-      return null;
-    }
-  })();
+  const saved = getSelectedWeek();
 
   if (saved) {
     const m = saved.match(/(\d{4})-W(\d{2})/i);

@@ -8,3 +8,7 @@ dist/
 
 # Auto-generated documentation
 docs/TODO_SUMMARY.md
+# Firebase configuration - DO NOT commit this file
+.env
+.env.local
+.env.production

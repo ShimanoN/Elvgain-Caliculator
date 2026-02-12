@@ -36,6 +36,8 @@
     "dist",
     "coverage",
     "test-results",
-    "playwright-report"
+    "playwright-report",
+    "js/db-old.ts",
+    "js/storage-old.ts"
   ]
 }

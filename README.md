@@ -1,142 +1,198 @@
-# Elevation Loom (Elvgain Calculator)
+# Elevation Loom (エレベーションルーム)
 
-This is a web application for tracking elevation gain progress with weekly targets.
+[![CI](https://github.com/ShimanoN/Elvgain-Caliculator/actions/workflows/ci.yml/badge.svg)](https://github.com/ShimanoN/Elvgain-Caliculator/actions/workflows/ci.yml)
+[![Deploy](https://github.com/ShimanoN/Elvgain-Caliculator/actions/workflows/deploy.yml/badge.svg)](https://github.com/ShimanoN/Elvgain-Caliculator/actions/workflows/deploy.yml)
 
-## Development Setup
+**A cloud-native web application for tracking elevation gain (climbing) progress with weekly targets.**
 
-### Prerequisites
+## 🚀 Architecture
 
-- Node.js (for running linting and formatting tools)
+This application uses a **Firestore-authoritative architecture**:
+- **Firestore**: Single source of truth for all persistent data
+- **IndexedDB**: Read-through/write-through cache (5-minute TTL)
+- **localStorage**: Ephemeral UI state only
+- **Result types**: Type-safe error handling
 
-### Installation
+For detailed architecture documentation, see [Cloud-Native Architecture Guide](docs/CLOUD_NATIVE_ARCHITECTURE.md).
 
-```bash
-npm install
-```
+## ✨ Features
 
-This will install the development dependencies and set up Git hooks automatically via husky.
+- **Daily Elevation Tracking**: Log elevation gained across multiple sessions per day
+- **Weekly Targets**: Set and track weekly elevation goals
+- **Progress Visualization**: View weekly progress with charts
+- **Condition Tracking**: Record subjective training conditions
+- **Auto-Backup**: Automatic backup to cloud storage (Firestore)
+- **Offline Support**: Work offline with local cache, sync when online
+- **Responsive Design**: Works on desktop and mobile devices
 
-## Code Quality Tools
+## 🛠️ Tech Stack
 
-This project uses ESLint and Prettier to maintain code quality and consistency.
+- **Frontend**: TypeScript, Vite, HTML5, CSS3
+- **Database**: 
+  - Firestore (authoritative storage)
+  - IndexedDB (client-side cache)
+- **Testing**: Vitest (unit), Playwright (e2e)
+- **Code Quality**: ESLint, Prettier, Husky
+- **Deployment**: GitHub Pages
 
-### Available Scripts
+## 📋 Prerequisites
 
-- `npm run lint` - Check JavaScript files for ESLint errors
-- `npm run lint:fix` - Automatically fix ESLint errors where possible
-- `npm run format` - Format all JavaScript, HTML, and CSS files with Prettier
-- `npm run format:check` - Check if files are formatted correctly without making changes
+- Node.js `^20.19.0 || ^22.13.0 || >=24.0.0`
+- npm (comes with Node.js)
+- Firebase project (for production deployment)
 
-### Pre-commit Hooks
+## 🚀 Quick Start
 
-The project uses husky and lint-staged to automatically run ESLint and Prettier on staged files before each commit. This ensures that all committed code meets the project's quality standards.
-
-### ESLint Configuration
-
-- Uses ESLint v10 with flat config format (eslint.config.js)
-- Configured for browser environment
-- Includes custom globals for functions shared across files via global scope
-- Based on ESLint recommended rules
-
-### Prettier Configuration
-
-- Tab width: 2 spaces
-- Single quotes for strings
-- Semicolons required
-- Trailing commas: ES5 style
-- Print width: 80 characters
-
-## Project Structure
-
-```
-.
-├── index.html              # Main page
-├── week-target.html        # Weekly target management page
-├── js/                     # JavaScript files
-│   ├── app.js             # Main application logic
-│   ├── backup.js          # Backup/restore functionality
-│   ├── calculations.js    # Progress calculation logic
-│   ├── chart.js           # Chart rendering
-│   ├── date-utils.js      # Date formatting and parsing utilities
-│   ├── db.js              # IndexedDB database operations
-│   ├── export-image.js    # Image export functionality
-│   ├── iso-week.js        # ISO week calculations
-│   ├── sample-data.js     # Sample data generation for testing/demo
-│   ├── week-target.js     # Weekly target management
-│   └── dev/               # Development utilities
-│       └── test.js        # Test utilities (not loaded in production)
-├── css/                    # Stylesheets
-│   └── style.css
-├── docs/                   # Documentation files (10 files)
-│   ├── DOCUMENTATION_INDEX.md           # 📖 Start here for documentation guide
-│   ├── DEVELOPMENT_PHASE_ASSESSMENT.md  # Current development phase
-│   ├── ROADMAP.md                       # Development roadmap with KGI/KPI
-│   ├── BEGINNER_WORKFLOW.md             # Workflow for IT beginners
-│   ├── LEARNING_PATH.md                 # Learning path for PLC engineers
-│   ├── QUICK_START_FOR_PLC_ENGINEERS.md # Quick start guide
-│   ├── CODE_WALKTHROUGH.md              # Detailed code explanation
-│   ├── CONTRIBUTING.md                  # Contribution guide
-│   ├── RELEASE.md                       # Release procedures
-│   └── Elevation_Loom_MVP仕様書_final.md # MVP specification (Japanese)
-└── scripts/                # Utility scripts
-    └── run_local.sh       # Local development server
-```
-
-## Architecture
-
-This application uses vanilla JavaScript without ES6 modules. JavaScript files share functions via the global scope, with dependencies documented at the top of each file. The load order of script tags in HTML files is important for proper functionality.
-
-Data is stored locally using IndexedDB for day logs and weekly targets.
-
-## Documentation
-
-This project has **10 comprehensive documentation files** for various audiences:
-
-- **📖 [Documentation Index](docs/DOCUMENTATION_INDEX.md)** - Start here to find the right documentation for your needs
-- **📊 [Development Phase Assessment](docs/DEVELOPMENT_PHASE_ASSESSMENT.md)** - Current project status and phase
-- **🎯 [Roadmap](docs/ROADMAP.md)** - Development roadmap with KGI/KPI goals
-- **👨‍💻 [Beginner Workflow](docs/BEGINNER_WORKFLOW.md)** - Standard workflow for IT beginners
-- **🔧 [Quick Start for PLC Engineers](docs/QUICK_START_FOR_PLC_ENGINEERS.md)** - Quick start guide for PLC/ST engineers
-- **📚 [Learning Path](docs/LEARNING_PATH.md)** - Comprehensive learning path for web development
-
-For a complete list of documentation, see the [Documentation Index](docs/DOCUMENTATION_INDEX.md).
-
-## Deployment
-
-This application is deployed to GitHub Pages and is accessible at:
-- Production: `https://shimanon.github.io/Elvgain-Caliculator/`
-
-### Deployment Process
-
-The application automatically deploys to GitHub Pages when changes are pushed to the `main` branch:
-
-1. **Automatic Deployment**: The GitHub Actions workflow (`.github/workflows/deploy.yml`) runs automatically on push to `main`
-2. **Pre-deployment Checks**: The workflow runs linting and tests before deployment
-3. **Static File Deployment**: All application files are deployed as-is (no build step required)
-
-### Manual Deployment
-
-You can also trigger a manual deployment:
-1. Go to the repository's Actions tab
-2. Select the "Deploy to GitHub Pages" workflow
-3. Click "Run workflow" button
-4. Select the branch (usually `main`) and click "Run workflow"
-
-### Local Development Server
-
-To run the application locally for development:
+### Development Mode (Demo)
 
 ```bash
-bash scripts/run_local.sh
+# Install dependencies
+npm install --legacy-peer-deps
+
+# Start development server
+npm run dev
+
+# Open http://localhost:8000
 ```
 
-This will start a local HTTP server (default port 8000). Open your browser to `http://localhost:8000`.
+**Note**: Development mode uses demo credentials. All users share the same data.
 
-## Contributing
+### Production Setup
 
-When contributing to this project:
+1. **Create Firebase Project**:
+   - Go to [Firebase Console](https://console.firebase.google.com/)
+   - Create a new project
+   - Enable Firestore Database
 
-1. Make sure your code passes ESLint checks (`npm run lint`)
-2. Format your code with Prettier (`npm run format`)
-3. The pre-commit hook will automatically check and format your staged files
-4. Follow the existing code structure and patterns
+2. **Configure Environment**:
+   ```bash
+   # Copy example env file
+   cp .env.example .env
+   
+   # Edit .env with your Firebase credentials
+   nano .env
+   ```
+
+3. **Deploy**:
+   ```bash
+   # Build for production
+   npm run build
+   
+   # Deploy to Firebase Hosting (or your platform)
+   firebase deploy
+   ```
+
+## 📚 Documentation
+
+- [Cloud-Native Architecture](docs/CLOUD_NATIVE_ARCHITECTURE.md) - Architecture overview
+- [Security Summary](docs/SECURITY_SUMMARY.md) - Security analysis and recommendations
+- [Development Guide](docs/BEGINNER_WORKFLOW.md) - Getting started for developers
+- [Contributing Guide](docs/CONTRIBUTING.md) - How to contribute
+- [Documentation Index](docs/DOCUMENTATION_INDEX.md) - All documentation
+
+## 🧪 Testing
+
+```bash
+# Run all tests
+npm test
+
+# Run tests in watch mode
+npm run test:ui
+
+# Run tests with coverage
+npm run test:coverage
+
+# Run e2e tests
+npm run e2e
+
+# Run e2e tests in UI mode
+npm run e2e:ui
+```
+
+## 🔧 Development Commands
+
+```bash
+# Type checking
+npm run typecheck
+
+# Linting
+npm run lint
+npm run lint:fix
+
+# Formatting
+npm run format
+npm run format:check
+
+# Build for production
+npm run build
+
+# Preview production build
+npm run preview
+```
+
+## ⚠️ Important Notes
+
+### Demo Mode Security
+
+**WARNING**: The default configuration uses demo mode where all users share the same data. This is for development only.
+
+**For Production**:
+1. Configure Firebase Authentication
+2. Remove demo mode fallback in `js/firebase-config.ts`
+3. Implement user login/logout flows
+4. Deploy with proper environment variables
+
+See [Security Summary](docs/SECURITY_SUMMARY.md) for details.
+
+### Data Migration
+
+If upgrading from a previous version with IndexedDB-only storage:
+
+```typescript
+import { migrateAllData } from './js/migration-adapter.js';
+
+// Run migration (one-time)
+const result = await migrateAllData();
+console.log(`Migrated ${result.migratedWeeks} weeks`);
+```
+
+## 🏗️ Project Structure
+
+```
+├── js/                    # TypeScript source files
+│   ├── storage.ts         # Main storage gateway (Firestore + cache)
+│   ├── firebase-config.ts # Firebase initialization
+│   ├── result.ts          # Result type system
+│   ├── types.ts           # Core domain types
+│   ├── storage-compat.ts  # Compatibility layer
+│   ├── db.ts              # Database facade
+│   └── ...                # Other modules
+├── docs/                  # Documentation
+├── test/                  # Unit tests
+├── e2e/                   # End-to-end tests
+├── css/                   # Stylesheets
+├── public/                # Static assets
+└── dist/                  # Build output
+```
+
+## 🤝 Contributing
+
+We welcome contributions! Please see our [Contributing Guide](docs/CONTRIBUTING.md) for details.
+
+## 📄 License
+
+MIT License - see [LICENSE](LICENSE) file for details.
+
+## 🔗 Links
+
+- [Live Demo](https://shimanon.github.io/Elvgain-Caliculator/)
+- [Documentation](docs/DOCUMENTATION_INDEX.md)
+- [Issue Tracker](https://github.com/ShimanoN/Elvgain-Caliculator/issues)
+
+## 👥 Target Audience
+
+This project is specifically designed for **PLC (Programmable Logic Controller) engineers** transitioning to web development. Documentation uses PLC/ST terminology mappings and analogies for easier understanding.
+
+---
+
+**Made with ❤️ for climbers and PLC engineers**

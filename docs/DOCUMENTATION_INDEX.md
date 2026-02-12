@@ -7,6 +7,13 @@ Elevation Loom のドキュメントを、**日常的に読むもの（Core）**
 
 ---
 
+## ドキュメントの分類ルール
+
+- Core: 日常の開発・運用で継続的に参照する文書
+- Reference: 設計背景、監査結果、移行履歴などの保存文書
+
+---
+
 ## 最初に読む順番
 
 ### 開発に参加する
@@ -50,6 +57,12 @@ Elevation Loom のドキュメントを、**日常的に読むもの（Core）**
 - [Elevation_Loom_MVP仕様書_final.md](./Elevation_Loom_MVP仕様書_final.md)
 - [ROADMAP.md](./ROADMAP.md)
 - [CHANGELOG.md](../CHANGELOG.md)
+
+### ルート直下の運用文書
+
+- [ARCHITECTURE.md](../ARCHITECTURE.md)
+- [PRODUCTION_CHECKLIST.md](../PRODUCTION_CHECKLIST.md)
+- [FIRESTORE_RULES.md](../FIRESTORE_RULES.md)
 
 ---
 

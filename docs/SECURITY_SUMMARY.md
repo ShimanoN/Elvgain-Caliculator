@@ -1,5 +1,9 @@
 # Security Summary - Cloud-Native Architecture Refactor
 
+> Category: Reference
+>
+> Security snapshot for the cloud-native refactor period. For current doc navigation, see `docs/DOCUMENTATION_INDEX.md`.
+
 ## CodeQL Analysis Results
 
 **Status**: ✅ PASSED  

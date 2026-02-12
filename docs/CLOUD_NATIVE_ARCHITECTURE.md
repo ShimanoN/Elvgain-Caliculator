@@ -1,4 +1,8 @@
-# Cloud-Native Architecture Migration
+# Cloud-Native Architecture Guide
+
+> Category: Reference
+> 
+> Current architecture guidance. Daily navigation starts from `docs/DOCUMENTATION_INDEX.md`.
 
 ## Overview
 

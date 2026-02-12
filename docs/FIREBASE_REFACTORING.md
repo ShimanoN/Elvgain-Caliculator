@@ -1,5 +1,9 @@
 # Firebase Preparation Refactoring Summary
 
+> Category: Reference (Historical)
+>
+> This document records the Firebase preparation phase and is kept for migration history.
+
 ## Overview
 
 This refactoring prepares the Elevation Loom application for Firebase (Firestore + Auth) integration by:

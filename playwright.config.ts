@@ -8,7 +8,7 @@ export default defineConfig({
   webServer: {
     command: 'npm run dev',
     port: 8000,
-    reuseExistingServer: true,
+    reuseExistingServer: false,
   },
   projects: [
     {

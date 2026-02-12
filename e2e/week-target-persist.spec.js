@@ -13,42 +13,24 @@ test('週目標を入力して再読み込みで保持される', async ({ page 
   // 入力に値を入れて保存動作を誘発
   await page.fill('#target-input', '3000');
 
-  // saveTarget() は async なので、保存+再読込完了を示すカスタムイベントを待つ
-  const savedPromise = page.evaluate(() => {
-    return new Promise((resolve) => {
-      document.addEventListener('week-target-loaded', () => resolve(), {
-        once: true,
-      });
-    });
-  });
-  await page.click('body'); // trigger save
-  await savedPromise;
+  // Trigger blur to save
+  await page.click('body');
 
-  // Wait a bit for the save to complete to cache
-  await page.waitForTimeout(500);
+  // Wait for save operation to complete
+  await page.waitForTimeout(1000);
 
   // 再読み込みして値が残っていることを確認
   await page.reload();
   await page.waitForLoadState('networkidle');
 
-  // Wait for the page to load the data after reload
-  const reloadedPromise = page.evaluate(() => {
-    return new Promise((resolve) => {
-      // If already loaded, resolve immediately
+  // Wait for the input to be populated with the saved value
+  await page.waitForFunction(
+    () => {
       const input = document.querySelector('#target-input');
-      if (input && input.value) {
-        resolve();
-      } else {
-        document.addEventListener('week-target-loaded', () => resolve(), {
-          once: true,
-          passive: true,
-        });
-        // Fallback timeout in case event doesn't fire
-        setTimeout(resolve, 2000);
-      }
-    });
-  });
-  await reloadedPromise;
+      return input && input.value === '3000';
+    },
+    { timeout: 10_000 }
+  );
 
   await expect(page.locator('#target-input')).toHaveValue('3000', {
     timeout: 10_000,

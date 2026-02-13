@@ -5,5 +5,5 @@
     "types": ["@playwright/test", "node"],
     "lib": ["ES2020", "DOM", "DOM.Iterable"]
   },
-  "include": ["e2e/**/*.ts", "js/**/*.ts"]
+  "include": ["e2e/**/*.ts"]
 }

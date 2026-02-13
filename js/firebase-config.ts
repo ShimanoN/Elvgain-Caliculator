@@ -12,6 +12,7 @@ import {
 import {
   getAuth,
   type Auth,
+  connectAuthEmulator,
   signInAnonymously,
   onAuthStateChanged,
   type User,
@@ -53,8 +54,28 @@ export function initFirebase(): {
   db = getFirestore(app);
   auth = getAuth(app);
 
-  // Connect to emulator in development
-  if (
+  // Connect to emulators for E2E tests (window.__E2E__ is set by Playwright)
+  if (typeof window !== 'undefined' && window.__E2E__ === true) {
+    try {
+      // Auth emulator on port 9099
+      connectAuthEmulator(auth, 'http://localhost:9099', {
+        disableWarnings: true,
+      });
+      console.info('Firebase Auth emulator connected at http://localhost:9099');
+    } catch (error) {
+      console.warn('Failed to connect Auth emulator:', error);
+    }
+
+    try {
+      // Firestore emulator on port 8080
+      connectFirestoreEmulator(db, 'localhost', 8080);
+      console.info('Firestore emulator connected at localhost:8080');
+    } catch (error) {
+      console.warn('Failed to connect Firestore emulator:', error);
+    }
+  }
+  // Connect to emulator in development (via env variables)
+  else if (
     import.meta.env.DEV &&
     import.meta.env.VITE_USE_FIREBASE_EMULATOR === 'true'
   ) {

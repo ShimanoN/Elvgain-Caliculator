@@ -3,6 +3,7 @@
  * Handles daily input, weekly progress display, and chart rendering
  */
 
+import { initFirebase } from './firebase-config.js';
 import { getDayLog, getDayLogsByWeek, getWeekTarget } from './db.js';
 import type { DayLog } from './db.js';
 import { getISOWeekInfo } from './iso-week.js';
@@ -20,6 +21,14 @@ import type { ChartDayData } from './chart.js';
 import { saveDayLogWithBackup } from './backup.js';
 import { setSelectedWeek } from './storage.js';
 import './export-image.js';
+
+// ============================================================
+// Firebase Initialization
+// ============================================================
+
+// Initialize Firebase early to ensure emulator connections are established
+// before any data operations (especially important for E2E tests)
+initFirebase();
 
 // ============================================================
 // DOM Element References

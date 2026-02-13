@@ -3,6 +3,7 @@
  * Handles weekly target setting and daily plan scheduling
  */
 
+import { initFirebase } from './firebase-config.js';
 import { getWeekTarget, getDayLog } from './db.js';
 import type { DayLog, WeekTarget } from './db.js';
 import { getISOWeekInfo } from './iso-week.js';
@@ -18,6 +19,14 @@ import type { ISOWeekInfo } from './iso-week.js';
 import { saveDayLogWithBackup, saveWeekTargetWithBackup } from './backup.js';
 import { setSelectedWeek, getSelectedWeek } from './storage.js';
 import './export-image.js';
+
+// ============================================================
+// Firebase Initialization
+// ============================================================
+
+// Initialize Firebase early to ensure emulator connections are established
+// before any data operations (especially important for E2E tests)
+initFirebase();
 
 // ============================================================
 // DOM Element References

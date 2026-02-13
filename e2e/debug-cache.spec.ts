@@ -1,4 +1,4 @@
-import { test, expect } from '@playwright/test';
+import { test } from '@playwright/test';
 
 test('デバッグ: IndexedDB キャッシュの persistence を確認', async ({
   page,
@@ -8,7 +8,7 @@ test('デバッグ: IndexedDB キャッシュの persistence を確認', async (
   await page.goto('/');
 
   // Open DevTools console to log cache state
-  const consoleMessages = [];
+  const consoleMessages: string[] = [];
   page.on('console', (msg) => consoleMessages.push(msg.text()));
 
   // Wait for page to be ready
@@ -17,7 +17,7 @@ test('デバッグ: IndexedDB キャッシュの persistence を確認', async (
 
   // Check initial cache state
   await page.evaluate(async () => {
-    const db = await new Promise((resolve) => {
+    const db = await new Promise<IDBDatabase>((resolve) => {
       const req = indexedDB.open('ElevationLoomCache', 1);
       req.onupgradeneeded = () => {};
       req.onsuccess = () => resolve(req.result);
@@ -39,7 +39,7 @@ test('デバッグ: IndexedDB キャッシュの persistence を確認', async (
 
   // Check cache after save
   await page.evaluate(async () => {
-    const db = await new Promise((resolve) => {
+    const db = await new Promise<IDBDatabase>((resolve) => {
       const req = indexedDB.open('ElevationLoomCache', 1);
       req.onsuccess = () => resolve(req.result);
     });
@@ -59,7 +59,7 @@ test('デバッグ: IndexedDB キャッシュの persistence を確認', async (
 
   // Check cache after reload
   await page.evaluate(async () => {
-    const db = await new Promise((resolve) => {
+    const db = await new Promise<IDBDatabase>((resolve) => {
       const req = indexedDB.open('ElevationLoomCache', 1);
       req.onsuccess = () => resolve(req.result);
     });

@@ -26,10 +26,10 @@ test('週目標を入力して再読み込みで保持される', async ({ page 
   // Wait for the input to be populated with the saved value
   await page.waitForFunction(
     () => {
-      const input = document.querySelector('#target-input');
+      const input = document.querySelector('#target-input') as HTMLInputElement | null;
       return input && input.value === '3000';
     },
-    { timeout: 10_000 }
+    { timeout: 10_000 },
   );
 
   await expect(page.locator('#target-input')).toHaveValue('3000', {

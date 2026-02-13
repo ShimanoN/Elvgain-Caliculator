@@ -22,10 +22,10 @@ test('日次入力の基本フロー', async ({ page }) => {
   // Prepare to wait for the save-complete event in the page context with timeout and cleanup
   const savedPromise = page.evaluate((timeout) => {
     return new Promise((resolve, reject) => {
-      let timeoutId = null;
-      const listener = (e) => {
+      let timeoutId: ReturnType<typeof setTimeout> | null = null;
+      const listener = (e: Event) => {
         if (timeoutId !== null) clearTimeout(timeoutId);
-        resolve(e.detail);
+        resolve((e as CustomEvent).detail);
       };
       document.addEventListener('day-log-saved', listener, { once: true });
       timeoutId = setTimeout(() => {

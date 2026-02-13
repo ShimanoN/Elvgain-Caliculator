@@ -46,11 +46,11 @@ jobs:
       fail-fast: false
       matrix:
         test-file:
-          - daily-input.spec.js
-          - week-progress.spec.js
-          - week-target.spec.js
-          - export-schedule.spec.js
-          - week-target-persist.spec.js
+          - daily-input.spec.ts
+          - week-progress.spec.ts
+          - week-target.spec.ts
+          - export-schedule.spec.ts
+          - week-target-persist.spec.ts
         browser:
           - chromium
           - firefox
@@ -77,6 +77,9 @@ jobs:
 
       - name: Install Playwright browsers
         run: npx playwright install --with-deps
+
+      - name: Type check E2E tests
+        run: npx tsc -p tsconfig.e2e.json
 
       - name: Run E2E tests (${{ matrix.test-file }}, ${{ matrix.browser }})
         run: npx playwright test "e2e/${{ matrix.test-file }}" --config=playwright.config.ts --project=${{ matrix.browser }}

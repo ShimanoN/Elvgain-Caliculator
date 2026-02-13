@@ -2,7 +2,9 @@ import { test, expect } from '@playwright/test';
 
 test('日次入力の基本フロー', async ({ page }) => {
   // mark E2E so app can switch to test-friendly behavior
-  await page.addInitScript(() => { window.__E2E__ = true; });
+  await page.addInitScript(() => {
+    window.__E2E__ = true;
+  });
 
   // Collect browser console for diagnostics
   page.on('console', (msg) => console.log('Browser:', msg.text()));
@@ -17,14 +19,25 @@ test('日次入力の基本フロー', async ({ page }) => {
   await page.fill('#part1', '800');
   await page.fill('#part2', '700');
 
+  // Prepare to wait for the save-complete event in the page context
+  const savedPromise = page.evaluate(() => {
+    return new Promise((resolve) => {
+      document.addEventListener('day-log-saved', (e) => resolve(e.detail), {
+        once: true,
+      });
+    });
+  });
+
   // blur to trigger save
   await page.click('body');
 
-  // Wait until #daily-total equals '1500' (polling) with extended timeout
-  await page.waitForFunction(() => {
-    const el = document.querySelector('#daily-total');
-    return el && el.textContent === '1500';
-  }, { timeout: 20_000 });
+  // wait for event
+  await savedPromise;
+
+  // Now the UI should reflect the saved values
+  await expect(page.locator('#daily-total')).toHaveText('1500', {
+    timeout: 10_000,
+  });
 
   // additionally ensure values are persisted after reload
   await page.reload();

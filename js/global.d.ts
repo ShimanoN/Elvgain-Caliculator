@@ -14,6 +14,8 @@ declare global {
     setWeekByISO?: (isoYear: number, weekNumber: number) => Promise<void>;
     /** Run ISO week calculation tests in console (from dev/test.ts) */
     runISOWeekTests?: () => void;
+    /** E2E test mode flag (injected by Playwright via page.addInitScript) */
+    __E2E__?: boolean;
   }
 
   /** Custom dataset properties used on HTMLElements */

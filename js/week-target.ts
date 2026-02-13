@@ -391,6 +391,10 @@ async function saveDailyPlan(
     await updateScheduleValues(currentWeekInfo, targetVal);
   } catch (error) {
     console.error('Error saving daily plan:', error);
+    // Display user-friendly error message when save fails
+    alert(
+      'デイリープランの保存に失敗しました。\nネットワーク接続を確認してください。\n\nFailed to save daily plan. Please check your network connection.'
+    );
   }
 }
 
@@ -428,6 +432,10 @@ async function saveTarget(): Promise<void> {
     await loadData();
   } catch (error) {
     console.error('Error saving week target:', error);
+    // Display user-friendly error message when save fails
+    alert(
+      '週間目標の保存に失敗しました。\nネットワーク接続を確認してください。\n\nFailed to save week target. Please check your network connection.'
+    );
   }
 }
 

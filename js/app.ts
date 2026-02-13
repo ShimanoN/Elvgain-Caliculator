@@ -198,6 +198,10 @@ async function saveData(): Promise<void> {
     await updateWeekProgress();
   } catch (error) {
     console.error('Error saving data:', error);
+    // Display user-friendly error message when save fails
+    alert(
+      'データの保存に失敗しました。\nネットワーク接続を確認してください。\n\nFailed to save data. Please check your network connection.'
+    );
   }
 }
 

@@ -132,12 +132,10 @@ export async function saveDayLogCompat(data: DayLog): Promise<void> {
     console.log('saveDayLogCompat: saveNewDayLog result:', result);
 
     if (!result.ok) {
-      console.warn(
-        'Failed to save day log (non-fatal, cache-only):',
-        result.error
-      );
-      // Don't throw - allow UI to continue with cache-only state in test/offline
-      return;
+      // BREAKING CHANGE: Now throws on failure instead of silently continuing
+      // This ensures users see explicit errors instead of false success
+      console.error('Failed to save day log:', result.error);
+      throw result.error;
     }
     console.log('saveDayLogCompat: save succeeded');
 
@@ -157,9 +155,9 @@ export async function saveDayLogCompat(data: DayLog): Promise<void> {
       console.warn('Failed to dispatch day-log-saved event:', e);
     }
   } catch (error) {
-    console.warn('Error saving day log (non-fatal, cache-only):', error);
-    // Don't throw - allow UI to continue with cache-only state
-    return;
+    console.error('Error saving day log:', error);
+    // Re-throw to ensure caller can handle the error
+    throw error;
   }
 }
 
@@ -181,17 +179,15 @@ export async function saveWeekTargetCompat(data: WeekTarget): Promise<void> {
     );
 
     if (!result.ok) {
-      console.warn(
-        'Failed to save week target (non-fatal, cache-only):',
-        result.error
-      );
-      // Don't throw - allow UI to continue with cache-only state
-      return;
+      // BREAKING CHANGE: Now throws on failure instead of silently continuing
+      // This ensures users see explicit errors instead of false success
+      console.error('Failed to save week target:', result.error);
+      throw result.error;
     }
   } catch (error) {
-    console.warn('Error saving week target (non-fatal, cache-only):', error);
-    // Don't throw - allow UI to continue with cache-only state
-    return;
+    console.error('Error saving week target:', error);
+    // Re-throw to ensure caller can handle the error
+    throw error;
   }
 }
 

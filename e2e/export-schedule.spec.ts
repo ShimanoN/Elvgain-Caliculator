@@ -7,11 +7,12 @@ test('週間スケジュール画像エクスポートが動作する（html2can
 
   // html2canvas を簡易スタブして高速に完了させる
   await page.addInitScript(() => {
-    window.html2canvas = async (el, opts) => {
+    window.html2canvas = async (_el: HTMLElement, _opts?: any) => {
       const c = document.createElement('canvas');
       c.width = 200;
       c.height = 100;
       const ctx = c.getContext('2d');
+      if (!ctx) throw new Error('Failed to get 2d context');
       ctx.fillStyle = '#fff';
       ctx.fillRect(0, 0, c.width, c.height);
       return c;

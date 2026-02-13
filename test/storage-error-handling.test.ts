@@ -8,7 +8,6 @@ import type { Mock } from 'vitest';
 
 describe('Storage Layer Critical Error Handling', () => {
   let storage: typeof import('../js/storage.js');
-  let firebaseConfig: typeof import('../js/firebase-config.js');
 
   beforeEach(async () => {
     // Clear module cache to get fresh imports

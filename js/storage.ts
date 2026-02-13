@@ -120,6 +120,10 @@ async function getFromCache(weekKey: string): Promise<WeekData | null> {
 /**
  * Save week data to cache
  */
+/**
+ * Best-effort cache save (for non-critical cache updates after Firestore success)
+ * Swallows all errors and always resolves - used when cache failure is acceptable
+ */
 async function saveToCache(weekKey: string, data: WeekData): Promise<void> {
   console.log('saveToCache: starting for key:', weekKey);
   try {
@@ -158,6 +162,50 @@ async function saveToCache(weekKey: string, data: WeekData): Promise<void> {
     // Non-critical failure, don't throw - return resolved promise
     return Promise.resolve();
   }
+}
+
+/**
+ * Strict cache save (for critical fallback scenarios)
+ * Throws on any error - used when cache failure must be detected
+ */
+async function saveToCacheStrict(
+  weekKey: string,
+  data: WeekData
+): Promise<void> {
+  console.log('saveToCacheStrict: starting for key:', weekKey);
+  const db = await initCacheDB();
+  if (!db) {
+    throw new Error('Failed to initialize cache database');
+  }
+
+  return new Promise<void>((resolve, reject) => {
+    try {
+      const transaction = db.transaction([CACHE_STORE_NAME], 'readwrite');
+      const store = transaction.objectStore(CACHE_STORE_NAME);
+      const cached: CachedWeekData = {
+        key: weekKey,
+        data,
+        cachedAt: Date.now(),
+      };
+      const request = store.put(cached);
+
+      request.onsuccess = () => {
+        resolve();
+      };
+      request.onerror = () => {
+        const error = request.error || new Error('Cache write request failed');
+        reject(error);
+      };
+
+      transaction.onerror = () => {
+        const error =
+          transaction.error || new Error('Cache transaction failed');
+        reject(error);
+      };
+    } catch (txErr) {
+      reject(txErr);
+    }
+  });
 }
 
 /**
@@ -467,15 +515,15 @@ export async function saveWeekData(
 
         return Ok(undefined);
       } catch (firestoreError) {
-        // Firestore failed - use cache as fallback (unconditionally save)
+        // Firestore failed - use cache as fallback (must detect cache failure)
         console.error(
           'saveWeekData: Firestore transaction failed, falling back to cache-only persistence:',
           firestoreError
         );
 
         try {
-          await saveToCache(weekKey, cacheData);
-          console.log(
+          await saveToCacheStrict(weekKey, cacheData);
+          console.warn(
             'saveWeekData: cache-only fallback save succeeded for week:',
             weekKey
           );
@@ -500,7 +548,7 @@ export async function saveWeekData(
     } else {
       // No docRef (auth failed) - save to cache only
       try {
-        await saveToCache(weekKey, cacheData);
+        await saveToCacheStrict(weekKey, cacheData);
         console.warn(
           'saveWeekData: Saved to cache only (authentication unavailable) for week:',
           weekKey
@@ -529,7 +577,7 @@ export async function saveWeekData(
 
     // Still try to save to cache as last resort
     try {
-      await saveToCache(weekKey, cacheData);
+      await saveToCacheStrict(weekKey, cacheData);
       console.warn(
         'saveWeekData: Emergency cache save succeeded for week:',
         weekKey

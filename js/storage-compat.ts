@@ -125,39 +125,33 @@ export async function getWeekTargetCompat(
  */
 export async function saveDayLogCompat(data: DayLog): Promise<void> {
   console.log('saveDayLogCompat: called with date:', data.date);
+  const entry = dayLogToEntry(data);
+  console.log('saveDayLogCompat: calling saveNewDayLog');
+  const result = await saveNewDayLog(data.date, entry);
+  console.log('saveDayLogCompat: saveNewDayLog result:', result);
+
+  if (!result.ok) {
+    // BREAKING CHANGE: Now throws on failure instead of silently continuing
+    // This ensures users see explicit errors instead of false success
+    console.error('saveDayLogCompat: Failed to save day log:', result.error);
+    throw result.error;
+  }
+  console.log('saveDayLogCompat: save succeeded');
+
+  // Dispatch E2E-only event to signal save completion
   try {
-    const entry = dayLogToEntry(data);
-    console.log('saveDayLogCompat: calling saveNewDayLog');
-    const result = await saveNewDayLog(data.date, entry);
-    console.log('saveDayLogCompat: saveNewDayLog result:', result);
-
-    if (!result.ok) {
-      // BREAKING CHANGE: Now throws on failure instead of silently continuing
-      // This ensures users see explicit errors instead of false success
-      console.error('Failed to save day log:', result.error);
-      throw result.error;
+    if (
+      typeof window !== 'undefined' &&
+      window.__E2E__ === true &&
+      typeof document !== 'undefined'
+    ) {
+      document.dispatchEvent(
+        new CustomEvent('day-log-saved', { detail: { date: data.date } })
+      );
     }
-    console.log('saveDayLogCompat: save succeeded');
-
-    // Dispatch E2E-only event to signal save completion
-    try {
-      if (
-        typeof window !== 'undefined' &&
-        window.__E2E__ === true &&
-        typeof document !== 'undefined'
-      ) {
-        document.dispatchEvent(
-          new CustomEvent('day-log-saved', { detail: { date: data.date } })
-        );
-      }
-    } catch (e) {
-      // E2E event dispatch or environment-related errors should not affect save
-      console.warn('Failed to dispatch day-log-saved event:', e);
-    }
-  } catch (error) {
-    console.error('Error saving day log:', error);
-    // Re-throw to ensure caller can handle the error
-    throw error;
+  } catch (e) {
+    // E2E event dispatch or environment-related errors should not affect save
+    console.warn('Failed to dispatch day-log-saved event:', e);
   }
 }
 
@@ -166,28 +160,25 @@ export async function saveDayLogCompat(data: DayLog): Promise<void> {
  * Converts to new format and saves atomically
  */
 export async function saveWeekTargetCompat(data: WeekTarget): Promise<void> {
-  try {
-    if (!data.iso_year || !data.week_number) {
-      throw new Error('WeekTarget must have iso_year and week_number');
-    }
+  if (!data.iso_year || !data.week_number) {
+    throw new Error('WeekTarget must have iso_year and week_number');
+  }
 
-    const targetValue = data.target_elevation ?? 0;
-    const result = await saveNewWeekTarget(
-      data.iso_year,
-      data.week_number,
-      targetValue
+  const targetValue = data.target_elevation ?? 0;
+  const result = await saveNewWeekTarget(
+    data.iso_year,
+    data.week_number,
+    targetValue
+  );
+
+  if (!result.ok) {
+    // BREAKING CHANGE: Now throws on failure instead of silently continuing
+    // This ensures users see explicit errors instead of false success
+    console.error(
+      'saveWeekTargetCompat: Failed to save week target:',
+      result.error
     );
-
-    if (!result.ok) {
-      // BREAKING CHANGE: Now throws on failure instead of silently continuing
-      // This ensures users see explicit errors instead of false success
-      console.error('Failed to save week target:', result.error);
-      throw result.error;
-    }
-  } catch (error) {
-    console.error('Error saving week target:', error);
-    // Re-throw to ensure caller can handle the error
-    throw error;
+    throw result.error;
   }
 }
 

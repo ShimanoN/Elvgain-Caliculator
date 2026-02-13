@@ -77,8 +77,6 @@ export interface WeekDataForWrite {
 /**
  * Week data for application/UI use.
  * Timestamps are always JavaScript Date objects.
- * This is the single source of truth stored in Firestore
- * Path: users/{uid}/weeks/{isoYear-weekNumber}
  */
 export interface WeekData {
   /** ISO year */

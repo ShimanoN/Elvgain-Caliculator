@@ -263,7 +263,14 @@ async function getWeekDocRef(isoYear: number, isoWeek: number) {
  * Convert Firestore Timestamp to Date
  * Handles Date objects, Firestore Timestamp objects, and FieldValue sentinels
  */
-function timestampToDate(value: Timestamp | Date | FieldValue | any): Date {
+function timestampToDate(
+  value:
+    | Timestamp
+    | Date
+    | FieldValue
+    | { toDate: () => Date }
+    | { seconds: number }
+): Date {
   // Already a Date object
   if (value instanceof Date) {
     return value;
@@ -292,9 +299,26 @@ function timestampToDate(value: Timestamp | Date | FieldValue | any): Date {
   // FieldValue sentinel (e.g., serverTimestamp()) - cannot be converted
   // This should not happen in reads, but log a warning if it does
   console.warn(
-    'timestampToDate: Attempted to convert FieldValue sentinel to Date, using current time'
+    'timestampToDate: Unexpected FieldValue sentinel encountered:',
+    typeof value,
+    'using current time as fallback'
   );
   return new Date();
+}
+
+/**
+ * Convert WeekDataFirestore to WeekData (application format)
+ * Converts Firestore Timestamp objects to JavaScript Date objects
+ */
+function convertFirestoreToAppData(firestoreData: WeekDataFirestore): WeekData {
+  return {
+    isoYear: firestoreData.isoYear,
+    isoWeek: firestoreData.isoWeek,
+    target: firestoreData.target,
+    dailyLogs: firestoreData.dailyLogs,
+    createdAt: timestampToDate(firestoreData.createdAt),
+    updatedAt: timestampToDate(firestoreData.updatedAt),
+  };
 }
 
 /**
@@ -415,15 +439,7 @@ export async function loadWeekData(
 
       // Parse Firestore data and convert timestamps
       const firestoreData = docSnap.data() as WeekDataFirestore;
-
-      const appData: WeekData = {
-        isoYear: firestoreData.isoYear,
-        isoWeek: firestoreData.isoWeek,
-        target: firestoreData.target,
-        dailyLogs: firestoreData.dailyLogs,
-        createdAt: timestampToDate(firestoreData.createdAt),
-        updatedAt: timestampToDate(firestoreData.updatedAt),
-      };
+      const appData = convertFirestoreToAppData(firestoreData);
 
       console.log('Loaded week data from Firestore:', weekKey);
 
@@ -534,15 +550,18 @@ export async function saveWeekData(
 
             // Check if data has actually changed (write optimization)
             // Convert Firestore data to WeekData for comparison
-            const existingWeekData: Omit<WeekData, 'createdAt' | 'updatedAt'> =
-              {
-                isoYear: existingData.isoYear,
-                isoWeek: existingData.isoWeek,
-                target: existingData.target,
-                dailyLogs: existingData.dailyLogs,
-              };
+            const existingWeekData = convertFirestoreToAppData(existingData);
+            const existingDataWithoutTimestamps: Omit<
+              WeekData,
+              'createdAt' | 'updatedAt'
+            > = {
+              isoYear: existingWeekData.isoYear,
+              isoWeek: existingWeekData.isoWeek,
+              target: existingWeekData.target,
+              dailyLogs: existingWeekData.dailyLogs,
+            };
 
-            if (areWeekDataEqual(data, existingWeekData)) {
+            if (areWeekDataEqual(data, existingDataWithoutTimestamps)) {
               // No changes detected - skip write to save on Firestore costs
               return;
             }

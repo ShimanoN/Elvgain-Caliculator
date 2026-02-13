@@ -2,7 +2,9 @@ import { test, expect } from '@playwright/test';
 
 test('日次入力の基本フロー', async ({ page }) => {
   // mark E2E so app can switch to test-friendly behavior
-  await page.addInitScript(() => { window.__E2E__ = true; });
+  await page.addInitScript(() => {
+    window.__E2E__ = true;
+  });
 
   // Collect browser console for diagnostics
   page.on('console', (msg) => console.log('Browser:', msg.text()));
@@ -17,14 +19,36 @@ test('日次入力の基本フロー', async ({ page }) => {
   await page.fill('#part1', '800');
   await page.fill('#part2', '700');
 
+  // Set up promise to wait for day-log-saved event with timeout
+  const savedPromise = page.evaluate((timeout) => {
+    return new Promise((resolve, reject) => {
+      let timeoutId = null;
+      const listener = (e) => {
+        if (timeoutId !== null) clearTimeout(timeoutId);
+        resolve(e.detail);
+      };
+      document.addEventListener('day-log-saved', listener, { once: true });
+      timeoutId = setTimeout(() => {
+        document.removeEventListener('day-log-saved', listener);
+        reject(new Error('Timed out waiting for day-log-saved event'));
+      }, timeout);
+    });
+  }, 20_000);
+
   // blur to trigger save
   await page.click('body');
 
-  // Wait until #daily-total equals '1500' (polling) with extended timeout
-  await page.waitForFunction(() => {
-    const el = document.querySelector('#daily-total');
-    return el && el.textContent === '1500';
-  }, { timeout: 20_000 });
+  // Wait for the save event
+  await savedPromise;
+
+  // Wait until #daily-total equals '1500'
+  await page.waitForFunction(
+    () => {
+      const el = document.querySelector('#daily-total');
+      return el && el.textContent === '1500';
+    },
+    { timeout: 10_000 }
+  );
 
   // additionally ensure values are persisted after reload
   await page.reload();

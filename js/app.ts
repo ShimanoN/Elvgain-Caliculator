@@ -3,6 +3,7 @@
  * Handles daily input, weekly progress display, and chart rendering
  */
 
+import './firebase-emulator.js';
 import { getDayLog, getDayLogsByWeek, getWeekTarget } from './db.js';
 import type { DayLog } from './db.js';
 import { getISOWeekInfo } from './iso-week.js';

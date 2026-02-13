@@ -1,5 +1,8 @@
 import { test, expect } from '@playwright/test';
 
+// Timeout for waiting for save completion (ms)
+const SAVE_COMPLETION_TIMEOUT_MS = 20_000;
+
 test('日次入力の基本フロー', async ({ page }) => {
   // mark E2E so app can switch to test-friendly behavior
   await page.addInitScript(() => {
@@ -23,15 +26,33 @@ test('日次入力の基本フロー', async ({ page }) => {
   await page.click('body');
 
   // Wait for day-log-saved event instead of polling
-  await page.evaluate(() => {
+  const eventReceived = await page.evaluate((timeout) => {
     return new Promise((resolve) => {
-      document.addEventListener('day-log-saved', () => resolve(), {
-        once: true,
-      });
+      let received = false;
+      document.addEventListener(
+        'day-log-saved',
+        () => {
+          received = true;
+          resolve(true);
+        },
+        { once: true }
+      );
       // Timeout safety fallback
-      setTimeout(() => resolve(), 20_000);
+      setTimeout(() => {
+        if (!received) {
+          console.error(
+            'Timeout waiting for day-log-saved event after',
+            timeout,
+            'ms'
+          );
+        }
+        resolve(received);
+      }, timeout);
     });
-  });
+  }, SAVE_COMPLETION_TIMEOUT_MS);
+
+  // Verify the event was received
+  expect(eventReceived).toBe(true);
 
   // Verify the total is updated
   const dailyTotal = await page.locator('#daily-total').textContent();

@@ -299,8 +299,18 @@ function timestampToDate(
   // FieldValue sentinel (e.g., serverTimestamp()) - cannot be converted
   // This should not happen in reads, but log a warning if it does
   console.warn(
-    'timestampToDate: Unexpected FieldValue sentinel encountered:',
-    typeof value,
+    'timestampToDate: Unexpected FieldValue sentinel or timestamp shape encountered:',
+    {
+      value,
+      type: typeof value,
+      constructorName:
+        value &&
+        typeof value === 'object' &&
+        'constructor' in value &&
+        value.constructor
+          ? value.constructor.name
+          : undefined,
+    },
     'using current time as fallback'
   );
   return new Date();
@@ -443,10 +453,8 @@ export async function loadWeekData(
 
       console.log('Loaded week data from Firestore:', weekKey);
 
-      // Update cache with converted data
-      await saveToCache(weekKey, appData).catch((e) =>
-        console.warn('Cache update after Firestore load failed:', e)
-      );
+      // Update cache with converted data (errors are logged inside saveToCache)
+      await saveToCache(weekKey, appData);
 
       return Ok(addMetadata(appData));
     } catch (firestoreError) {
@@ -532,9 +540,13 @@ export async function saveWeekData(
           const docSnap = await transaction.get(docRef);
           const exists = docSnap.exists();
 
+          // Get existing data if document exists (used for createdAt preservation)
+          const existingData = exists
+            ? (docSnap.data() as WeekDataFirestore)
+            : null;
+
           // Check for concurrent modification if expectedUpdatedAt is provided
-          if (exists && expectedUpdatedAt) {
-            const existingData = docSnap.data() as WeekDataFirestore;
+          if (exists && expectedUpdatedAt && existingData) {
             const existingUpdatedAt = timestampToDate(existingData.updatedAt);
 
             // Compare timestamps (allow 1 second tolerance for rounding)
@@ -573,9 +585,10 @@ export async function saveWeekData(
             isoWeek: data.isoWeek,
             target: data.target,
             dailyLogs: data.dailyLogs,
-            createdAt: exists
-              ? timestampToDate((docSnap.data() as WeekDataFirestore).createdAt)
-              : serverTimestamp(),
+            createdAt:
+              exists && existingData
+                ? timestampToDate(existingData.createdAt)
+                : serverTimestamp(),
             updatedAt: serverTimestamp(),
           };
 

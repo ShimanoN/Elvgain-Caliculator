@@ -29,17 +29,22 @@ test('日次入力の基本フロー', async ({ page }) => {
   const eventReceived = await page.evaluate((timeout) => {
     return new Promise((resolve) => {
       let received = false;
-      document.addEventListener(
-        'day-log-saved',
-        () => {
-          received = true;
-          resolve(true);
-        },
-        { once: true }
-      );
+      let timeoutId = null;
+
+      const listener = () => {
+        received = true;
+        if (timeoutId !== null) {
+          clearTimeout(timeoutId);
+        }
+        resolve(true);
+      };
+
+      document.addEventListener('day-log-saved', listener, { once: true });
+
       // Timeout safety fallback
-      setTimeout(() => {
+      timeoutId = setTimeout(() => {
         if (!received) {
+          document.removeEventListener('day-log-saved', listener);
           console.error(
             'Timeout waiting for day-log-saved event after',
             timeout,

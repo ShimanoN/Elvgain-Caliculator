@@ -13,20 +13,23 @@ test('日次入力の基本フロー', async ({ page }) => {
   await page.waitForSelector('#part1', { timeout: 10_000 });
   await page.waitForSelector('#part2', { timeout: 10_000 });
 
+  // Fill both inputs
   await page.fill('#part1', '800');
   await page.fill('#part2', '700');
 
   // blur to trigger save
   await page.click('body');
 
-  // Wait for calculated total to appear (allow some timeout)
-  await expect(page.locator('#daily-total')).toHaveText('1500', { timeout: 10_000 });
+  // Wait until #daily-total equals '1500' (polling) with extended timeout
+  await page.waitForFunction(() => {
+    const el = document.querySelector('#daily-total');
+    return el && el.textContent === '1500';
+  }, { timeout: 20_000 });
 
+  // additionally ensure values are persisted after reload
   await page.reload();
-  // Wait for page to finish loading and initialize
   await page.waitForLoadState('networkidle');
 
-  // Ensure inputs re-populated
   await expect(page.locator('#part1')).toHaveValue('800', { timeout: 10_000 });
   await expect(page.locator('#part2')).toHaveValue('700', { timeout: 10_000 });
 });

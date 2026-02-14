@@ -76,6 +76,21 @@ async function initCacheDB(): Promise<IDBDatabase> {
 
     request.onsuccess = (event) => {
       cacheDB = (event.target as IDBOpenDBRequest).result;
+
+      // Signal to the window that cache DB is ready for tests
+      if (typeof window !== 'undefined') {
+        window.__ELV_CACHE_READY = true;
+        try {
+          window.dispatchEvent(
+            new CustomEvent('cache:ready', {
+              detail: { dbName: CACHE_DB_NAME },
+            })
+          );
+        } catch (_e) {
+          /* ignore */
+        }
+      }
+
       resolve(cacheDB);
     };
 
@@ -152,11 +167,29 @@ async function saveToCache(weekKey: string, data: WeekData): Promise<void> {
         };
         request.onerror = () => {
           console.warn('Cache write request failed:', request.error);
+          try {
+            if (typeof window !== 'undefined') {
+              window.dispatchEvent(
+                new CustomEvent('cache:updated', { detail: { key: weekKey } })
+              );
+            }
+          } catch (_e) {
+            /* ignore */
+          }
           resolve(); // Non-critical failure
         };
 
         transaction.onerror = () => {
           console.warn('Cache transaction error:', transaction.error);
+          try {
+            if (typeof window !== 'undefined') {
+              window.dispatchEvent(
+                new CustomEvent('cache:updated', { detail: { key: weekKey } })
+              );
+            }
+          } catch (_e) {
+            /* ignore */
+          }
           resolve();
         };
       } catch (txErr) {
@@ -197,6 +230,15 @@ async function saveToCacheStrict(
       const request = store.put(cached);
 
       request.onsuccess = () => {
+        try {
+          if (typeof window !== 'undefined') {
+            window.dispatchEvent(
+              new CustomEvent('cache:updated', { detail: { key: weekKey } })
+            );
+          }
+        } catch (_e) {
+          /* ignore */
+        }
         resolve();
       };
       request.onerror = () => {
@@ -803,6 +845,43 @@ export async function clearAllCache(): Promise<Result<void, Error>> {
     return Err(
       error instanceof Error ? error : new Error('Unknown error clearing cache')
     );
+  }
+}
+
+/**
+ * List all week data entries currently stored in the IndexedDB cache.
+ * This is a best-effort function intended for tooling, backups and
+ * migration helpers that need to read all cached weeks.
+ *
+ * Returns an array of WeekData (may be empty).
+ */
+export async function listCachedWeeks(): Promise<WeekData[]> {
+  try {
+    const db = await initCacheDB();
+    return new Promise<WeekData[]>((resolve) => {
+      const transaction = db.transaction([CACHE_STORE_NAME], 'readonly');
+      const store = transaction.objectStore(CACHE_STORE_NAME);
+      const request = store.getAll();
+
+      request.onsuccess = () => {
+        const results = (request.result as CachedWeekData[] | undefined) || [];
+        const weeks = results.map((r) => r.data);
+        resolve(weeks);
+      };
+
+      request.onerror = () => {
+        console.warn('listCachedWeeks: cache read failed:', request.error);
+        resolve([]);
+      };
+
+      transaction.onerror = () => {
+        console.warn('listCachedWeeks: transaction error:', transaction.error);
+        resolve([]);
+      };
+    });
+  } catch (e) {
+    console.warn('listCachedWeeks: failed to open cache DB:', e);
+    return [];
   }
 }
 

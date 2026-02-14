@@ -5,6 +5,10 @@ export default defineConfig(({ command }) => ({
   base: command === 'build' ? '/Elvgain-Caliculator/' : '/',
   root: '.',
   publicDir: 'public',
+  define: {
+    // Pass E2E env flag to browser (set window.__E2E__ = true when E2E=1)
+    __E2E_MODE__: JSON.stringify(process.env.E2E === '1'),
+  },
   build: {
     outDir: 'dist',
     rollupOptions: {

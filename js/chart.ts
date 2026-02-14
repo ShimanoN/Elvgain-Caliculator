@@ -313,6 +313,16 @@ export function drawWeeklyChart(
   }
 
   drawLegend(ctx, width, padding, palette, fontFamily);
+
+  // Notify listeners (tests) that the chart has been drawn
+  try {
+    const ev = new CustomEvent('chart:drawn', { detail: { canvasId } });
+    if (typeof window !== 'undefined' && window.dispatchEvent) {
+      window.dispatchEvent(ev);
+    }
+  } catch (_e) {
+    /* ignore event errors */
+  }
 }
 
 // ============================================================

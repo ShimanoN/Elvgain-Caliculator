@@ -79,6 +79,23 @@ import {
   deleteDayLogCompat,
 } from './storage-compat.js';
 
+/**
+ * Extended WeekData type for cached records that may contain legacy property names
+ * from older IndexedDB entries or Firestore documents.
+ */
+interface CachedWeekRecord {
+  isoYear?: number;
+  isoWeek?: number;
+  iso_year?: number;
+  iso_week?: number;
+  target?: { value?: number; unit?: string };
+  dailyLogs?: import('./types.js').DailyLogEntry[];
+  start_date?: string;
+  end_date?: string;
+  createdAt?: { toString(): string };
+  updatedAt?: { toString(): string };
+}
+
 // ============================================================
 // DayLog Operations (Facade)
 // ============================================================
@@ -126,13 +143,29 @@ export async function getDayLogsByWeek(
  * @returns Promise resolving to array of all DayLog records
  */
 export async function getAllDayLogs(): Promise<DayLog[]> {
-  // This would require fetching all weeks from Firestore
-  // For now, we'll return an empty array and log a warning
-  // This function should be deprecated as it's not scalable
-  console.warn(
-    'getAllDayLogs is not implemented in Firestore-authoritative architecture'
-  );
-  return [];
+  // Attempt to read cached weeks from the storage cache. In E2E and
+  // offline scenarios the cache holds recent week documents which is
+  // sufficient for backups and migration tooling. This is best-effort
+  // and will return an empty array if cache access fails.
+  try {
+    const { listCachedWeeks } = await import('./storage.js');
+    const { entryToDayLog } = await import('./migration-adapter.js');
+
+    const weeks = await listCachedWeeks();
+    const result: DayLog[] = [];
+    for (const w of weeks) {
+      const rec = w as unknown as CachedWeekRecord;
+      const isoYear = rec.isoYear ?? rec.iso_year ?? 0;
+      const isoWeek = rec.isoWeek ?? rec.iso_week ?? 0;
+      for (const entry of w.dailyLogs || []) {
+        result.push(entryToDayLog(entry, isoYear, isoWeek));
+      }
+    }
+    return result;
+  } catch (error) {
+    console.warn('getAllDayLogs fallback to empty array:', error);
+    return [];
+  }
 }
 
 // ============================================================
@@ -163,13 +196,34 @@ export async function saveWeekTarget(data: WeekTarget): Promise<void> {
  * @returns Promise resolving to array of all WeekTarget records
  */
 export async function getAllWeekTargets(): Promise<WeekTarget[]> {
-  // This would require fetching all weeks from Firestore
-  // For now, we'll return an empty array and log a warning
-  // This function should be deprecated as it's not scalable
-  console.warn(
-    'getAllWeekTargets is not implemented in Firestore-authoritative architecture'
-  );
-  return [];
+  try {
+    const { listCachedWeeks } = await import('./storage.js');
+    const weeks = await listCachedWeeks();
+    const result: WeekTarget[] = [];
+    for (const w of weeks) {
+      const rec = w as unknown as CachedWeekRecord;
+      const isoYear = rec.isoYear ?? rec.iso_year ?? 0;
+      const isoWeek = rec.isoWeek ?? rec.iso_week ?? 0;
+      const value = w.target?.value ?? 0;
+      if (value) {
+        const key = `${isoYear}-W${String(isoWeek).padStart(2, '0')}`;
+        result.push({
+          key,
+          iso_year: isoYear,
+          week_number: isoWeek,
+          start_date: rec.start_date,
+          end_date: rec.end_date,
+          target_elevation: value,
+          created_at: rec.createdAt ? rec.createdAt.toString() : undefined,
+          updated_at: rec.updatedAt ? rec.updatedAt.toString() : undefined,
+        });
+      }
+    }
+    return result;
+  } catch (error) {
+    console.warn('getAllWeekTargets fallback to empty array:', error);
+    return [];
+  }
 }
 
 // ============================================================

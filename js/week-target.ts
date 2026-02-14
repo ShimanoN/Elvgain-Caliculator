@@ -19,6 +19,7 @@ import type { ISOWeekInfo } from './iso-week.js';
 import { saveDayLogWithBackup, saveWeekTargetWithBackup } from './backup.js';
 import { setSelectedWeek, getSelectedWeek } from './storage.js';
 import './export-image.js';
+import { drawWeeklyChart } from './chart.js';
 
 // ============================================================
 // Firebase Initialization
@@ -107,6 +108,63 @@ async function loadData(): Promise<void> {
 
     // Render weekly schedule
     await renderSchedule(weekInfo, currentTotal, targetElevation);
+
+    // Also draw a progress chart for export/tests
+    try {
+      // Build basic chart data from schedule rows
+      const rows = Array.from(
+        document.querySelectorAll('#schedule-body tr')
+      ) as HTMLTableRowElement[];
+      const chartData = rows.map((tr) => {
+        const date = tr.dataset.date || '';
+        const planText =
+          (tr.querySelector('.plan-total-val') as HTMLElement).textContent ||
+          '-';
+        const actualText =
+          (tr.querySelector('.actual-val') as HTMLElement).textContent || '-';
+        const planNum =
+          parseFloat((planText || '').replace(/[^0-9.]/g, '')) || 0;
+        const actualNum =
+          actualText && actualText !== '-'
+            ? parseFloat(actualText.replace(/[^0-9.]/g, ''))
+            : null;
+        // Compute Japanese day name for chart rendering
+        const d = date ? new Date(date + 'T00:00:00') : new Date();
+        const dayName = getJPDayName(d.getDay());
+        return {
+          date,
+          dayName,
+          plan: planNum,
+          actual: actualNum,
+        };
+      });
+
+      drawWeeklyChart('progressChart', chartData, targetElevation ?? null);
+    } catch (chartErr) {
+      console.warn('Failed to draw progressChart:', chartErr);
+    }
+
+    // Update additional UI elements expected by tests
+    try {
+      const weekTotalEl = document.getElementById('week-total');
+      const progressEl = document.getElementById('progress-percent');
+      if (weekTotalEl) {
+        weekTotalEl.textContent = String(currentTotal);
+      }
+      if (progressEl) {
+        if (targetElevation && targetElevation > 0) {
+          const pct = Math.min(
+            100,
+            Math.round((currentTotal / targetElevation) * 100)
+          );
+          progressEl.textContent = `${pct}%`;
+        } else {
+          progressEl.textContent = '---%';
+        }
+      }
+    } catch (_e) {
+      /* non-critical */
+    }
 
     // Save selected week for sync with other pages
     setSelectedWeek(targetKey);
@@ -516,21 +574,53 @@ nextWeekBtn.addEventListener('click', () => changeWeek(1));
 
 (function initialLoad() {
   const saved = getSelectedWeek();
+  // Wait for cache ready (IndexedDB) if necessary to avoid race where
+  // saved data hasn't been persisted/read yet. Tests rely on cache events.
+  const waitForCacheReady = () =>
+    new Promise<void>((resolve) => {
+      try {
+        if (window.__ELV_CACHE_READY) {
+          resolve();
+          return;
+        }
+      } catch (_e) {
+        // ignore
+      }
 
-  if (saved) {
-    const m = saved.match(/(\d{4})-W(\d{2})/i);
-    if (m) {
-      const isoYear = Number(m[1]);
-      const weekNumber = Number(m[2]);
-      // Use setWeekByISO to load the saved week
-      setWeekByISO(isoYear, weekNumber).catch((e) => {
-        console.warn('setWeekByISO failed, falling back to loadData', e);
-        loadData();
-      });
-      return;
+      const onReady = () => {
+        window.removeEventListener('cache:ready', onReady);
+        resolve();
+      };
+
+      window.addEventListener('cache:ready', onReady);
+
+      // Fallback: resolve after 1s to avoid hanging if event never fires
+      setTimeout(() => {
+        try {
+          window.removeEventListener('cache:ready', onReady);
+        } catch (_e) {
+          /* ignore */
+        }
+        resolve();
+      }, 1000);
+    });
+
+  (async () => {
+    await waitForCacheReady();
+    if (saved) {
+      const m = saved.match(/(\d{4})-W(\d{2})/i);
+      if (m) {
+        const isoYear = Number(m[1]);
+        const weekNumber = Number(m[2]);
+        // Use setWeekByISO to load the saved week
+        setWeekByISO(isoYear, weekNumber).catch((e) => {
+          console.warn('setWeekByISO failed, falling back to loadData', e);
+          loadData();
+        });
+        return;
+      }
     }
-  }
-
-  // Fallback to loading current date
-  loadData();
+    // Fallback to loading current date
+    loadData();
+  })();
 })();

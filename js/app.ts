@@ -159,12 +159,19 @@ async function saveData(): Promise<void> {
 
     if (part1 !== null && (isNaN(part1) || part1 < 0)) {
       console.error('Invalid value for part1:', part1Value);
-      return;
+      part1Input.value = '0';
     }
     if (part2 !== null && (isNaN(part2) || part2 < 0)) {
       console.error('Invalid value for part2:', part2Value);
-      return;
+      part2Input.value = '0';
     }
+
+    // Recompute numeric values after normalization
+    const normPart1 = part1Input.value === '' ? null : Number(part1Input.value);
+    const normPart2 = part2Input.value === '' ? null : Number(part2Input.value);
+
+    const part1Final = normPart1;
+    const part2Final = normPart2;
 
     let condition: 'good' | 'normal' | 'bad' | null = null;
     for (const radio of conditionRadios) {
@@ -176,12 +183,12 @@ async function saveData(): Promise<void> {
 
     const existing = await getDayLog(date);
     const weekInfo = getISOWeekInfo(parseDateLocal(date));
-    const total = (part1 ?? 0) + (part2 ?? 0);
+    const total = (part1Final ?? 0) + (part2Final ?? 0);
 
     const record: DayLog = {
       date: date,
-      elevation_part1: part1,
-      elevation_part2: part2,
+      elevation_part1: part1Final,
+      elevation_part2: part2Final,
       elevation_total: total,
       subjective_condition: condition,
       daily_plan_part1: existing?.daily_plan_part1 ?? null,

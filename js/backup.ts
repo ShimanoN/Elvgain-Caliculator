@@ -285,3 +285,76 @@ if (document.readyState === 'loading') {
 } else {
   initAutoBackup();
 }
+
+// Expose E2E backup API on window for Playwright tests
+try {
+  if (typeof window !== 'undefined') {
+    // export/import operate on snapshot objects (buildSnapshot/restore logic)
+    window.elvBackup = {
+      exportBackup: async () => {
+        try {
+          const snapshot = await buildSnapshot();
+          try {
+            const ev = new CustomEvent('backup:done', { detail: { snapshot } });
+            window.dispatchEvent(ev);
+          } catch (_e) {
+            /* ignore dispatch errors */
+          }
+          return snapshot;
+        } catch (e) {
+          console.error('exportBackup failed:', e);
+          return null;
+        }
+      },
+      importBackup: async (snapshot: unknown) => {
+        try {
+          if (!snapshot || typeof snapshot !== 'object') return false;
+
+          const data = snapshot as Record<string, unknown>;
+          let restoredLogs = 0;
+          let restoredTargets = 0;
+
+          // Restore day logs
+          if (Array.isArray(data.day_logs)) {
+            for (const log of data.day_logs) {
+              try {
+                await saveDayLog(log as DayLog);
+                restoredLogs++;
+              } catch (err) {
+                console.error('importBackup: saveDayLog failed:', err);
+              }
+            }
+          }
+
+          // Restore week targets
+          if (Array.isArray(data.week_targets)) {
+            for (const wt of data.week_targets) {
+              try {
+                await saveWeekTarget(wt as WeekTarget);
+                restoredTargets++;
+              } catch (err) {
+                console.error('importBackup: saveWeekTarget failed:', err);
+              }
+            }
+          }
+
+          try {
+            const ev = new CustomEvent('backup:imported', {
+              detail: { restoredLogs, restoredTargets },
+            });
+            window.dispatchEvent(ev);
+          } catch (_e) {
+            /* ignore */
+          }
+
+          return true;
+        } catch (e) {
+          console.error('importBackup failed:', e);
+          return false;
+        }
+      },
+    };
+  }
+} catch (_e) {
+  /* ignore attach errors */
+}

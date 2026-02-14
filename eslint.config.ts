@@ -147,9 +147,9 @@ export default [
       'no-empty': 'off',
     },
   },
-  // Test files (.js) and E2E
+  // Test files (.ts) and E2E
   {
-    files: ['test/**/*.js', 'e2e/**/*.js'],
+    files: ['test/**/*.ts', 'e2e/**/*.ts'],
     languageOptions: {
       sourceType: 'module',
       ecmaVersion: 'latest',

@@ -6,6 +6,9 @@
  * eliminates the need for `(window as any)` casts.
  */
 
+// Vite define constants
+declare const __E2E_MODE__: boolean;
+
 export {};
 
 declare global {
@@ -16,11 +19,10 @@ declare global {
     runISOWeekTests?: () => void;
     /** E2E test mode flag (injected by Playwright via page.addInitScript) */
     __E2E__?: boolean;
+    /** Cache ready flag set by storage.ts */
+    __ELV_CACHE_READY?: boolean;
     /** Elevation Loom backup API (for E2E/backup-restore.spec.ts) */
-    elvBackup?: {
-      exportBackup: () => any;
-      importBackup: (data: any) => boolean;
-    };
+    elvBackup?: Record<string, (...args: unknown[]) => unknown>;
   }
 
   /** Custom dataset properties used on HTMLElements */

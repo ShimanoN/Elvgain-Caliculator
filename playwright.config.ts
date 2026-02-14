@@ -3,13 +3,23 @@ import { defineConfig, devices } from '@playwright/test';
 export default defineConfig({
   testDir: './e2e',
   testMatch: /.*\.spec\.ts$/,
+  globalSetup: './e2e/global-setup.ts',
+  // Launch options to reduce CORS issues when running emulators in-browser
+  // Tests run in a controlled environment; disabling web security helps
+  // the browser reach local emulator endpoints during E2E runs.
   use: {
     baseURL: 'http://localhost:8000',
+    launchOptions: {
+      args: [
+        '--disable-web-security',
+        '--disable-features=IsolateOrigins,site-per-process',
+      ],
+    },
   },
   webServer: {
     command: 'npm run dev',
     port: 8000,
-    reuseExistingServer: false,
+    reuseExistingServer: true,
     // Increase timeout to allow dev server to fully start on CI
     timeout: 120_000,
     // Pass E2E env flag so app can use test-friendly behavior (mock backends etc.)

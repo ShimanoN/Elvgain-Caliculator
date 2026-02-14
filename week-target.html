@@ -95,6 +95,18 @@
             </p>
           </div>
           <div class="metric-card">
+            <p class="metric-label">週合計</p>
+            <p class="metric-value">
+              <span id="week-total">0</span><span class="metric-unit">m</span>
+            </p>
+          </div>
+          <div class="metric-card">
+            <p class="metric-label">進捗率</p>
+            <p class="metric-value">
+              <span id="progress-percent">---%</span>
+            </p>
+          </div>
+          <div class="metric-card">
             <p class="metric-label">予定合計</p>
             <p class="metric-value">
               <span id="weekly-plan-total">0</span
@@ -114,6 +126,9 @@
         <!-- 週間スケジュール -->
         <div class="weekly-schedule" id="weekly-schedule-section">
           <h3>週間スケジュール・予実</h3>
+          <div class="weekly-chart">
+            <canvas id="progressChart" width="800" height="320"></canvas>
+          </div>
           <table>
             <thead>
               <tr>

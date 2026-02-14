@@ -58,6 +58,37 @@ GitHub Actionsによる自動デプロイを有効化するには、Firebase Ser
 - **本番環境**: https://elevation-loom.web.app
 - **プロジェクトコンソール**: https://console.firebase.google.com/project/elevation-loom/overview
 
+## Firebase Hosting設定に関する重要な注意事項
+
+### マルチページアプリケーション構成
+
+このアプリケーションは、以下の2つのHTMLページを持つ**マルチページアプリケーション (MPA)** です：
+- `index.html` - メインの日次入力ページ
+- `week-target.html` - 週目標設定ページ
+
+### firebase.jsonの設定
+
+`firebase.json` の `hosting` セクションには、**rewrites ルールを設定しないでください**。
+
+❌ **誤った設定例（SPAパターン）**:
+```json
+"rewrites": [
+  {
+    "source": "**",
+    "destination": "/index.html"
+  }
+]
+```
+
+この設定を追加すると、すべてのリクエストが `index.html` にリダイレクトされ、`week-target.html` にアクセスできなくなります。
+
+✅ **正しい設定**: rewritesセクションを含めない（現在の設定）
+
+これにより、各HTMLファイルへ直接アクセスできます：
+- `https://elevation-loom.web.app/` → `index.html`
+- `https://elevation-loom.web.app/week-target.html` → `week-target.html`
+- `https://elevation-loom.web.app/assets/*` → CSS/JSファイル
+
 ## 次のステップ
 
 1. GitHub Secretsの設定を完了する

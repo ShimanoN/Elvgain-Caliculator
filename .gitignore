@@ -12,3 +12,6 @@ docs/TODO_SUMMARY.md
 .env
 .env.local
 .env.production
+
+# Firebase local cache
+.firebase/

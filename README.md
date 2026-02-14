@@ -5,6 +5,8 @@
 
 **A cloud-native web application for tracking elevation gain (climbing) progress with weekly targets.**
 
+🌐 **Live App**: https://elevation-loom.web.app
+
 ## 🚀 Architecture
 
 This application uses a **Firestore-authoritative architecture** (Phase 5 completed):
@@ -17,6 +19,8 @@ This application uses a **Firestore-authoritative architecture** (Phase 5 comple
 **Current Documentation**:
 - [ARCHITECTURE.md](ARCHITECTURE.md) - Production-ready architecture (Latest)
 - [FIRESTORE_RULES.md](FIRESTORE_RULES.md) - Security rules documentation
+- [FIREBASE_DEPLOYMENT_GUIDE.md](FIREBASE_DEPLOYMENT_GUIDE.md) - Deployment guide (Phase 6)
+- [USER_MANUAL.md](USER_MANUAL.md) - User manual for daily usage
 
 **Historical References**:
 - [Firebase Refactoring](docs/archive/FIREBASE_REFACTORING.md) - Migration process record

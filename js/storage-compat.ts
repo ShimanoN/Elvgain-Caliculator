@@ -180,6 +180,29 @@ export async function saveWeekTargetCompat(data: WeekTarget): Promise<void> {
     );
     throw result.error;
   }
+
+  console.log('saveWeekTargetCompat: save succeeded');
+
+  // Dispatch E2E-only event to signal save completion
+  try {
+    if (
+      typeof window !== 'undefined' &&
+      window.__E2E__ === true &&
+      typeof document !== 'undefined'
+    ) {
+      document.dispatchEvent(
+        new CustomEvent('week-target-saved', {
+          detail: {
+            iso_year: data.iso_year,
+            week_number: data.week_number,
+          },
+        })
+      );
+    }
+  } catch (e) {
+    // E2E event dispatch or environment-related errors should not affect save
+    console.warn('Failed to dispatch week-target-saved event:', e);
+  }
 }
 
 /**

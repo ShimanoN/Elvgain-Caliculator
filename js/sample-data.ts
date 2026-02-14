@@ -5,6 +5,8 @@
 import { saveDayLog } from './db.js';
 import type { DayLog } from './db.js';
 import { getISOWeekInfo } from './iso-week.js';
+import { formatDateLocal } from './date-utils.js';
+import { DEFAULT_TIMEZONE } from './constants.js';
 
 // ============================================================
 // Type Definitions
@@ -32,17 +34,7 @@ interface GenerateResult {
 // Helper Functions
 // ============================================================
 
-/**
- * Format Date object to YYYY-MM-DD string
- * @param date - Date to format
- * @returns Formatted date string
- */
-function formatDate(date: Date): string {
-  const y = date.getFullYear();
-  const m = String(date.getMonth() + 1).padStart(2, '0');
-  const d = String(date.getDate()).padStart(2, '0');
-  return `${y}-${m}-${d}`;
-}
+// formatDate is now provided by date-utils.ts as formatDateLocal
 
 /**
  * Generate random integer in range [min, max]
@@ -113,14 +105,14 @@ export async function generate(
 
     const weekInfo = getISOWeekInfo(d);
     logs.push({
-      date: formatDate(d),
+      date: formatDateLocal(d),
       elevation_part1: part1,
       elevation_part2: part2,
       elevation_total: part1 + part2,
       subjective_condition: condition,
       iso_year: weekInfo.iso_year,
       week_number: weekInfo.week_number,
-      timezone: 'Asia/Tokyo',
+      timezone: DEFAULT_TIMEZONE,
       created_at: new Date().toISOString(),
       updated_at: new Date().toISOString(),
     });

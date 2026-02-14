@@ -14,7 +14,11 @@ import {
   formatDateRangeDisplay,
   getJPDayName,
 } from './formatters.js';
-import { DAY_LABELS_CHART, MAX_DAYS_HISTORY } from './constants.js';
+import {
+  DAY_LABELS_CHART,
+  MAX_DAYS_HISTORY,
+  DEFAULT_TIMEZONE,
+} from './constants.js';
 import { drawWeeklyChart } from './chart.js';
 import type { ChartDayData } from './chart.js';
 // Import side effects for backup and export functionality
@@ -195,7 +199,7 @@ async function saveData(): Promise<void> {
       daily_plan_part2: existing?.daily_plan_part2 ?? null,
       iso_year: weekInfo.iso_year,
       week_number: weekInfo.week_number,
-      timezone: 'Asia/Tokyo',
+      timezone: DEFAULT_TIMEZONE,
       created_at: existing?.created_at ?? new Date().toISOString(),
       updated_at: new Date().toISOString(),
     };
@@ -241,40 +245,26 @@ async function changeDate(offset: number): Promise<void> {
 }
 
 // ============================================================
-// Week Progress Display
+// Week Progress Helpers
 // ============================================================
 
+/** Condition statistics for the week */
+interface ConditionStats {
+  good: { count: number; total: number };
+  normal: { count: number; total: number };
+  bad: { count: number; total: number };
+}
+
 /**
- * Update weekly progress display and chart
- * @param dateOverride - Optional date to use instead of current input
+ * Update the progress bar and percentage display
+ * @param currentTotal - Current actual total
+ * @param weekTargetValue - Target elevation for the week
  */
-async function updateWeekProgress(dateOverride?: Date): Promise<void> {
-  const baseDate = dateOverride || parseDateLocal(dateInput.value);
-  const weekInfo = getISOWeekInfo(baseDate);
-
-  // Update week range display
-  if (weekRangeSpan) {
-    weekRangeSpan.textContent = formatDateRangeDisplay(
-      weekInfo.start_date,
-      weekInfo.end_date
-    );
-  }
-
-  const targetKey = formatISOWeekKey(weekInfo.iso_year, weekInfo.week_number);
-
-  // Save selected week for sync with other pages
-  setSelectedWeek(targetKey);
-
-  const targetRecord = await getWeekTarget(targetKey);
-  const currentTotal = await calculateWeekTotal(
-    weekInfo.iso_year,
-    weekInfo.week_number
-  );
-
+function updateProgressDisplay(
+  currentTotal: number,
+  weekTargetValue: number
+): void {
   weekCurrentSpan.textContent = String(currentTotal);
-
-  // Display target progress
-  const weekTargetValue = targetRecord?.target_elevation || 0;
   weekTargetSpan.textContent =
     weekTargetValue > 0 ? `${weekTargetValue}` : '---';
 
@@ -297,72 +287,126 @@ async function updateWeekProgress(dateOverride?: Date): Promise<void> {
       weekProgressBar.style.width = '0%';
     }
   }
+}
 
-  // Draw chart
+/**
+ * Calculate condition statistics from week logs
+ * @param weekLogs - Array of day logs for the week
+ * @returns Condition statistics
+ */
+function calculateConditionStats(weekLogs: DayLog[]): ConditionStats {
+  const stats: ConditionStats = {
+    good: { count: 0, total: 0 },
+    normal: { count: 0, total: 0 },
+    bad: { count: 0, total: 0 },
+  };
+
+  for (const log of weekLogs) {
+    if (!log || !log.subjective_condition) continue;
+    const key = log.subjective_condition;
+    if (!stats[key]) continue;
+    if (log.elevation_total === null || log.elevation_total === undefined)
+      continue;
+    stats[key].count += 1;
+    stats[key].total += log.elevation_total;
+  }
+
+  return stats;
+}
+
+/**
+ * Build chart data and condition strip from week logs
+ * @param weekLogs - Array of day logs for the week
+ * @param weekStartDate - Start date string in YYYY-MM-DD format
+ * @returns Chart data array
+ */
+function buildChartDataAndStrip(
+  weekLogs: DayLog[],
+  weekStartDate: string
+): ChartDayData[] {
+  const chartData: ChartDayData[] = [];
+  const startDate = parseDateLocal(weekStartDate);
+  const dayLabels = DAY_LABELS_CHART;
+
+  if (conditionStrip) {
+    conditionStrip.innerHTML = '';
+  }
+
+  for (let i = 0; i < 7; i++) {
+    const d = new Date(startDate);
+    d.setDate(d.getDate() + i);
+    const dateStr = formatDateLocal(d);
+    const dayName = getJPDayName(d.getDay());
+
+    const log = weekLogs.find((l) => l.date === dateStr);
+
+    chartData.push({
+      date: dateStr,
+      dayName: dayName,
+      plan: (log?.daily_plan_part1 || 0) + (log?.daily_plan_part2 || 0),
+      actual: log?.elevation_total ?? null,
+    });
+
+    if (conditionStrip) {
+      const label = dayLabels[i];
+      const segment = document.createElement('div');
+      segment.className = 'condition-segment';
+      segment.setAttribute('data-day', label);
+      const condition = log?.subjective_condition ?? null;
+      if (condition === 'good') segment.classList.add('condition-good');
+      else if (condition === 'normal')
+        segment.classList.add('condition-normal');
+      else if (condition === 'bad') segment.classList.add('condition-bad');
+      else segment.classList.add('condition-empty');
+      conditionStrip.appendChild(segment);
+    }
+  }
+
+  return chartData;
+}
+
+// ============================================================
+// Week Progress Display
+// ============================================================
+
+/**
+ * Update weekly progress display and chart
+ * @param dateOverride - Optional date to use instead of current input
+ */
+async function updateWeekProgress(dateOverride?: Date): Promise<void> {
+  const baseDate = dateOverride || parseDateLocal(dateInput.value);
+  const weekInfo = getISOWeekInfo(baseDate);
+
+  // Update week range display
+  if (weekRangeSpan) {
+    weekRangeSpan.textContent = formatDateRangeDisplay(
+      weekInfo.start_date,
+      weekInfo.end_date
+    );
+  }
+
+  const targetKey = formatISOWeekKey(weekInfo.iso_year, weekInfo.week_number);
+  setSelectedWeek(targetKey);
+
+  const targetRecord = await getWeekTarget(targetKey);
+  const currentTotal = await calculateWeekTotal(
+    weekInfo.iso_year,
+    weekInfo.week_number
+  );
+
+  const weekTargetValue = targetRecord?.target_elevation || 0;
+  updateProgressDisplay(currentTotal, weekTargetValue);
+
+  // Draw chart and update condition display
   try {
-    // Get all data for the week
     const logs = await getDayLogsByWeek(
       weekInfo.iso_year,
       weekInfo.week_number
     );
     const weekLogs = Array.isArray(logs) ? logs : [];
 
-    const conditionStats = {
-      good: { count: 0, total: 0 },
-      normal: { count: 0, total: 0 },
-      bad: { count: 0, total: 0 },
-    };
-
-    for (const log of weekLogs) {
-      if (!log || !log.subjective_condition) continue;
-      const key = log.subjective_condition;
-      if (!conditionStats[key]) continue;
-      if (log.elevation_total === null || log.elevation_total === undefined)
-        continue;
-      conditionStats[key].count += 1;
-      conditionStats[key].total += log.elevation_total;
-    }
-
-    const chartData: ChartDayData[] = [];
-    const [sy, sm, sd] = weekInfo.start_date.split('-').map(Number);
-    const startDate = new Date(sy, sm - 1, sd);
-
-    const dayLabels = DAY_LABELS_CHART;
-
-    if (conditionStrip) {
-      conditionStrip.innerHTML = '';
-    }
-
-    for (let i = 0; i < 7; i++) {
-      const d = new Date(startDate);
-      d.setDate(d.getDate() + i);
-      const dateStr = formatDateLocal(d);
-      const dayName = getJPDayName(d.getDay());
-
-      // Find log for this date
-      const log = weekLogs.find((l) => l.date === dateStr);
-
-      chartData.push({
-        date: dateStr,
-        dayName: dayName,
-        plan: (log?.daily_plan_part1 || 0) + (log?.daily_plan_part2 || 0),
-        actual: log?.elevation_total ?? null,
-      });
-
-      if (conditionStrip) {
-        const label = dayLabels[i];
-        const segment = document.createElement('div');
-        segment.className = 'condition-segment';
-        segment.setAttribute('data-day', label);
-        const condition = log?.subjective_condition ?? null;
-        if (condition === 'good') segment.classList.add('condition-good');
-        else if (condition === 'normal')
-          segment.classList.add('condition-normal');
-        else if (condition === 'bad') segment.classList.add('condition-bad');
-        else segment.classList.add('condition-empty');
-        conditionStrip.appendChild(segment);
-      }
-    }
+    const conditionStats = calculateConditionStats(weekLogs);
+    const chartData = buildChartDataAndStrip(weekLogs, weekInfo.start_date);
 
     drawWeeklyChart('weeklyCheckChart', chartData, weekTargetValue);
 

@@ -12,6 +12,7 @@
 
 import type { DayLog, WeekTarget } from './db.js';
 import { getISOWeekInfo } from './iso-week.js';
+import { parseDateLocal } from './date-utils.js';
 import {
   loadWeekData,
   saveDayLog as saveNewDayLog,
@@ -27,7 +28,7 @@ export async function getDayLogCompat(
   date: string
 ): Promise<DayLog | undefined> {
   try {
-    const dateObj = new Date(date + 'T00:00:00');
+    const dateObj = parseDateLocal(date);
     const weekInfo = getISOWeekInfo(dateObj);
 
     const result = await loadWeekData(weekInfo.iso_year, weekInfo.week_number);
@@ -124,11 +125,8 @@ export async function getWeekTargetCompat(
  * Converts to new format and saves atomically
  */
 export async function saveDayLogCompat(data: DayLog): Promise<void> {
-  console.log('saveDayLogCompat: called with date:', data.date);
   const entry = dayLogToEntry(data);
-  console.log('saveDayLogCompat: calling saveNewDayLog');
   const result = await saveNewDayLog(data.date, entry);
-  console.log('saveDayLogCompat: saveNewDayLog result:', result);
 
   if (!result.ok) {
     // BREAKING CHANGE: Now throws on failure instead of silently continuing
@@ -136,7 +134,6 @@ export async function saveDayLogCompat(data: DayLog): Promise<void> {
     console.error('saveDayLogCompat: Failed to save day log:', result.error);
     throw result.error;
   }
-  console.log('saveDayLogCompat: save succeeded');
 
   // Dispatch E2E-only event to signal save completion
   try {
@@ -181,8 +178,6 @@ export async function saveWeekTargetCompat(data: WeekTarget): Promise<void> {
     throw result.error;
   }
 
-  console.log('saveWeekTargetCompat: save succeeded');
-
   // Dispatch E2E-only event to signal save completion
   try {
     if (
@@ -211,7 +206,7 @@ export async function saveWeekTargetCompat(data: WeekTarget): Promise<void> {
  */
 export async function deleteDayLogCompat(date: string): Promise<void> {
   try {
-    const dateObj = new Date(date + 'T00:00:00');
+    const dateObj = parseDateLocal(date);
     const weekInfo = getISOWeekInfo(dateObj);
 
     const result = await loadWeekData(weekInfo.iso_year, weekInfo.week_number);

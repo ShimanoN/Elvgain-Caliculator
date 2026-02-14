@@ -3,6 +3,8 @@
  * ISO 8601準拠: 週の開始は月曜日、その年の第1木曜日を含む週を第1週とする。
  */
 
+import { formatDateLocal } from './date-utils.js';
+
 export interface ISOWeekInfo {
   iso_year: number;
   week_number: number;
@@ -42,17 +44,10 @@ export function getISOWeekInfo(date: Date): ISOWeekInfo {
   const endDate = new Date(startDate.getTime());
   endDate.setDate(startDate.getDate() + 6);
 
-  const formatDate = (date: Date): string => {
-    const y = date.getFullYear();
-    const m = String(date.getMonth() + 1).padStart(2, '0');
-    const day = String(date.getDate()).padStart(2, '0');
-    return `${y}-${m}-${day}`;
-  };
-
   return {
     iso_year: isoYear,
     week_number: weekNumber,
-    start_date: formatDate(startDate),
-    end_date: formatDate(endDate),
+    start_date: formatDateLocal(startDate),
+    end_date: formatDateLocal(endDate),
   };
 }

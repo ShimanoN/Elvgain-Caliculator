@@ -24,6 +24,7 @@ import {
   type FieldValue,
 } from 'firebase/firestore';
 import { getFirestoreInstance, getCurrentUserId } from './firebase-config.js';
+import { parseDateLocal } from './date-utils.js';
 import { getISOWeekInfo } from './iso-week.js';
 import type {
   WeekData,
@@ -33,6 +34,7 @@ import type {
   DailyLogEntry,
 } from './types.js';
 import { Result, Ok, Err } from './result.js';
+import { DEFAULT_ELEVATION_UNIT, EPOCH_SENTINEL } from './constants.js';
 
 // ============================================================
 // Constants
@@ -147,10 +149,8 @@ async function getFromCache(weekKey: string): Promise<WeekData | null> {
  * Swallows all errors and always resolves - used when cache failure is acceptable
  */
 async function saveToCache(weekKey: string, data: WeekData): Promise<void> {
-  console.log('saveToCache: starting for key:', weekKey);
   try {
     const db = await initCacheDB();
-    console.log('saveToCache: got db:', db ? 'ok' : 'null');
     return new Promise<void>((resolve) => {
       try {
         const transaction = db.transaction([CACHE_STORE_NAME], 'readwrite');
@@ -212,7 +212,6 @@ async function saveToCacheStrict(
   weekKey: string,
   data: WeekData
 ): Promise<void> {
-  console.log('saveToCacheStrict: starting for key:', weekKey);
   const db = await initCacheDB();
   if (!db) {
     throw new Error('Failed to initialize cache database');
@@ -438,6 +437,24 @@ function areWeekDataEqual(
   return true;
 }
 
+/**
+ * Create an empty WeekData object for a given ISO year/week.
+ * Used when no data exists in Firestore or as a fallback for offline mode.
+ * @param isoYear - ISO year
+ * @param isoWeek - ISO week number
+ * @returns Empty WeekData with epoch sentinel timestamps
+ */
+function createEmptyWeekData(isoYear: number, isoWeek: number): WeekData {
+  return {
+    isoYear,
+    isoWeek,
+    target: { value: 0, unit: DEFAULT_ELEVATION_UNIT },
+    dailyLogs: [],
+    createdAt: EPOCH_SENTINEL,
+    updatedAt: EPOCH_SENTINEL,
+  };
+}
+
 // ============================================================
 // Public API
 // ============================================================
@@ -475,25 +492,13 @@ export async function loadWeekData(
       const docSnap = await getDoc(docRef);
 
       if (!docSnap.exists()) {
-        // No data exists - return empty week with null timestamp
-        // The timestamp will be set when the document is first saved
-        const emptyWeek: WeekData = {
-          isoYear,
-          isoWeek,
-          target: { value: 0, unit: 'm' },
-          dailyLogs: [],
-          createdAt: new Date(0), // Epoch timestamp indicates not yet persisted
-          updatedAt: new Date(0), // Epoch timestamp indicates not yet persisted
-        };
-
-        return Ok(addMetadata(emptyWeek));
+        // No data exists - return empty week with epoch sentinel timestamps
+        return Ok(addMetadata(createEmptyWeekData(isoYear, isoWeek)));
       }
 
       // Parse Firestore data and convert timestamps
       const firestoreData = docSnap.data() as WeekDataFirestore;
       const appData = convertFirestoreToAppData(firestoreData);
-
-      console.log('Loaded week data from Firestore:', weekKey);
 
       // Update cache with converted data (errors are logged inside saveToCache)
       await saveToCache(weekKey, appData);
@@ -507,29 +512,12 @@ export async function loadWeekData(
         firestoreError
       );
 
-      const emptyWeek: WeekData = {
-        isoYear,
-        isoWeek,
-        target: { value: 0, unit: 'm' },
-        dailyLogs: [],
-        createdAt: new Date(0),
-        updatedAt: new Date(0),
-      };
-
-      return Ok(addMetadata(emptyWeek));
+      return Ok(addMetadata(createEmptyWeekData(isoYear, isoWeek)));
     }
   } catch (error) {
     console.error('Unexpected error in loadWeekData:', error);
     // Even on unexpected errors, return empty week for resilience
-    const emptyWeek: WeekData = {
-      isoYear,
-      isoWeek,
-      target: { value: 0, unit: 'm' },
-      dailyLogs: [],
-      createdAt: new Date(0),
-      updatedAt: new Date(0),
-    };
-    return Ok(addMetadata(emptyWeek));
+    return Ok(addMetadata(createEmptyWeekData(isoYear, isoWeek)));
   }
 }
 
@@ -638,11 +626,7 @@ export async function saveWeekData(
           transaction.set(docRef, fullData);
         });
 
-        // Firestore succeeded - save updated cache with approximated timestamps
-        console.log(
-          'Firestore transaction succeeded, updating cache for week:',
-          weekKey
-        );
+        // Firestore succeeded - update cache with approximated timestamps
         await saveToCache(weekKey, cacheData).catch((e) =>
           console.warn('Cache update after Firestore success failed:', e)
         );
@@ -752,7 +736,7 @@ export async function saveDayLog(
 ): Promise<Result<void, Error>> {
   try {
     // Parse date to get ISO week
-    const dateObj = new Date(date + 'T00:00:00');
+    const dateObj = parseDateLocal(date);
     const weekInfo = getISOWeekInfo(dateObj);
 
     // Load current week data

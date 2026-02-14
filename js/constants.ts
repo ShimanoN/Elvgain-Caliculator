@@ -172,3 +172,22 @@ export const ISO_WEEK_RANGE = {
   min: 1,
   max: 53,
 } as const;
+
+// ============================================================
+// Application Defaults
+// ============================================================
+
+/**
+ * Default timezone for records
+ */
+export const DEFAULT_TIMEZONE = 'Asia/Tokyo';
+
+/**
+ * Default elevation unit
+ */
+export const DEFAULT_ELEVATION_UNIT = 'm';
+
+/**
+ * Epoch sentinel Date — indicates a document that has not yet been persisted
+ */
+export const EPOCH_SENTINEL = new Date(0);

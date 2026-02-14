@@ -19,6 +19,7 @@ import type { ISOWeekInfo } from './iso-week.js';
 import { saveDayLogWithBackup, saveWeekTargetWithBackup } from './backup.js';
 import { setSelectedWeek, getSelectedWeek } from './storage.js';
 import './export-image.js';
+import { DEFAULT_TIMEZONE } from './constants.js';
 import { drawWeeklyChart } from './chart.js';
 
 // ============================================================
@@ -129,7 +130,7 @@ async function loadData(): Promise<void> {
             ? parseFloat(actualText.replace(/[^0-9.]/g, ''))
             : null;
         // Compute Japanese day name for chart rendering
-        const d = date ? new Date(date + 'T00:00:00') : new Date();
+        const d = date ? parseDateLocal(date) : new Date();
         const dayName = getJPDayName(d.getDay());
         return {
           date,
@@ -434,7 +435,7 @@ async function saveDailyPlan(
 
       iso_year: weekInfo.iso_year,
       week_number: weekInfo.week_number,
-      timezone: 'Asia/Tokyo',
+      timezone: DEFAULT_TIMEZONE,
       created_at: existing?.created_at ?? new Date().toISOString(),
       updated_at: new Date().toISOString(),
     };

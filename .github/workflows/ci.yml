@@ -32,6 +32,11 @@ jobs:
       - name: Lint
         run: npm run lint
 
+      # Type check the entire TypeScript codebase to catch type errors
+      # Runs tsc in --noEmit mode (no build output, only checking)
+      - name: Type check
+        run: npm run typecheck
+
       - name: Run tests
         run: npm run test:run
         env:

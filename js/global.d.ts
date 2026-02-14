@@ -16,6 +16,11 @@ declare global {
     runISOWeekTests?: () => void;
     /** E2E test mode flag (injected by Playwright via page.addInitScript) */
     __E2E__?: boolean;
+    /** Elevation Loom backup API (for E2E/backup-restore.spec.ts) */
+    elvBackup?: {
+      exportBackup: () => any;
+      importBackup: (data: any) => boolean;
+    };
   }
 
   /** Custom dataset properties used on HTMLElements */

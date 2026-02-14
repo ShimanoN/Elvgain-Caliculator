@@ -1,6 +1,5 @@
 import { test, expect } from '@playwright/test';
-import fs from 'fs';
-import path from 'path';
+
 
 /**
  * E2Eテスト: チャートエクスポート機能

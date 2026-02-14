@@ -12,8 +12,10 @@ declare global {
     /** html2canvas stub for export testing */
     html2canvas?: (
       element: HTMLElement,
-      options?: any,
+      options?: any
     ) => Promise<HTMLCanvasElement>;
+    /** Elevation Loom backup API (for E2E/backup-restore.spec.ts) */
+    elvBackup?: Record<string, (...args: unknown[]) => unknown>;
   }
 }
 

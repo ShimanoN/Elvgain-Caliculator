@@ -26,6 +26,7 @@ import { StorageError as StorageErrorClass } from './types.js';
 import { saveDayLogWithBackup } from './backup.js';
 import { setSelectedWeek } from './storage.js';
 import { initSyncRetry } from './sync-retry.js';
+import { initSyncStatus } from './sync-status.js';
 import './export-image.js';
 
 // ============================================================
@@ -49,6 +50,9 @@ waitForAuth(10000)
 // Initialize sync retry system
 initSyncRetry();
 
+// ============================================================
+// DOM Elements
+// ============================================================
 // ============================================================
 // DOM Element References
 // ============================================================
@@ -525,6 +529,15 @@ dateInput.addEventListener('change', async () => {
 // ============================================================
 // Initial Load
 // ============================================================
+
+// Initialize sync status UI after DOM is ready
+if (document.readyState === 'loading') {
+  document.addEventListener('DOMContentLoaded', () => {
+    initSyncStatus();
+  });
+} else {
+  initSyncStatus();
+}
 
 weekBaseDate = parseDateLocal(dateInput.value);
 loadData();

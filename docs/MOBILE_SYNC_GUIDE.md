@@ -8,6 +8,43 @@ The Elevation Loom app supports data synchronization between mobile and PC devic
 
 ---
 
+## 同期ステータス UI / Sync Status UI
+
+### 同期ステータスバッジ / Sync Status Badge
+
+アプリケーションのヘッダーには、現在の同期状況を示すバッジが表示されます。バッジの色で状態を一目で確認できます：
+
+The application header displays a badge showing the current sync status. The badge color indicates the state at a glance:
+
+- **緑色 (Green) - OK**: すべてのデータが同期済み（未同期アイテム: 0）/ All data synced (pending items: 0)
+- **黄色 (Yellow) - Pending**: 未送信のデータあり / Unsent data exists
+- **灰色 (Gray) - Offline**: オフライン状態 / Offline status
+- **赤色 (Red) - Error**: 同期APIが利用できない、またはエラー発生 / Sync API unavailable or error occurred
+
+### バッジ表示内容 / Badge Display
+
+同期ステータスバッジには以下の情報が表示されます：
+
+The sync status badge displays the following information:
+
+- **Pending**: 未同期アイテムの数 / Number of unsynced items
+- **Last**: 最後に同期が完了した時刻（相対表記: "2m ago", "1h ago" など）/ Last sync completion time (relative: "2m ago", "1h ago", etc.)
+
+### 手動同期ボタン / Manual Sync Button
+
+「Sync Now」ボタンをクリックすると、手動で同期を実行できます：
+
+Click the "Sync Now" button to manually trigger sync:
+
+1. ボタンをクリック / Click the button
+2. 同期が完了するまで待機 / Wait for sync to complete
+3. 成功時はトースト通知が表示されます / Success notification shown via toast
+4. 失敗時はエラーメッセージが表示されます / Error message shown on failure
+
+**注意 / Note**: オフライン時や同期APIが利用できない場合、ボタンは無効化されます。/ The button is disabled when offline or when sync API is unavailable.
+
+---
+
 ## データ同期の仕組み / How Data Sync Works
 
 ### 標準フロー / Standard Flow

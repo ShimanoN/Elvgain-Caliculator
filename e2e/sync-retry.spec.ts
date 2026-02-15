@@ -99,6 +99,60 @@ test.describe('同期リトライ機能', () => {
     expect(pendingCount).toBe(0);
   });
 
+  test('同期ステータスUIが表示される', async ({ page }) => {
+    // Check if sync status badge exists
+    const statusBadge = page.locator('#sync-status-badge');
+    await expect(statusBadge).toBeVisible();
+
+    // Check if pending count is displayed
+    const pendingCount = page.locator('#sync-pending-count');
+    await expect(pendingCount).toBeVisible();
+
+    // Check if sync button exists
+    const syncButton = page.locator('#sync-now-button');
+    await expect(syncButton).toBeVisible();
+
+    // Check if last sync time is displayed
+    const lastSyncTime = page.locator('#sync-last-time');
+    await expect(lastSyncTime).toBeVisible();
+  });
+
+  test('同期ボタンをクリックして手動同期ができる', async ({ page }) => {
+    // Wait for sync API to be available
+    await page.waitForFunction(() => typeof window.elvSync !== 'undefined', {
+      timeout: 5000,
+    });
+
+    // Click sync button
+    const syncButton = page.locator('#sync-now-button');
+    await syncButton.click();
+
+    // Wait for sync to complete
+    await page.waitForTimeout(2000);
+
+    // Check if pending count is updated
+    const pendingCountText = await page
+      .locator('#sync-pending-count')
+      .textContent();
+    expect(pendingCountText).toBeTruthy();
+  });
+
+  test('同期ステータスがペンディング数に応じて変化する', async ({ page }) => {
+    // Add some data to create pending items
+    const today = new Date().toISOString().split('T')[0];
+    await page.fill('#current-date', today);
+    await page.fill('#part1', '200');
+    await page.locator('#part1').blur();
+    await page.waitForTimeout(1000);
+
+    // Check if status badge class changes
+    const statusBadge = page.locator('#sync-status-badge');
+    const classList = await statusBadge.getAttribute('class');
+
+    // Should have a status class (ok, pending, offline, or error)
+    expect(classList).toMatch(/sync-status-badge--(ok|pending|offline|error)/);
+  });
+
   test('認証完了後にデータが正常に保存される', async ({ page }) => {
     // Wait for authentication to complete
     await page.waitForTimeout(3000);

@@ -5,12 +5,34 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Elevation Loom</title>
     <link rel="stylesheet" href="css/style.css" />
+    <link rel="stylesheet" href="css/sync-status.css" />
   </head>
 
   <body>
     <header>
       <h1>Elevation Loom</h1>
+      <div class="sync-status-container">
+        <div
+          id="sync-status-badge"
+          class="sync-status-badge sync-status-badge--offline"
+        >
+          <span
+            >Pending:
+            <span id="sync-pending-count" class="sync-pending-count"
+              >—</span
+            ></span
+          >
+          <span class="sync-last-time"
+            >Last: <span id="sync-last-time">—</span></span
+          >
+        </div>
+        <button id="sync-now-button" class="sync-now-button" type="button">
+          Sync Now
+        </button>
+      </div>
     </header>
+    <!-- Toast for sync notifications -->
+    <div id="sync-toast" class="sync-toast"></div>
 
     <main>
       <!-- 日付選択エリア -->

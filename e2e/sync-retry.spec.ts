@@ -120,9 +120,7 @@ test.describe('同期リトライ機能', () => {
 
   test('エラーメッセージが適切に表示される', async ({ page }) => {
     // Listen for alerts
-    let _alertMessage = '';
     page.on('dialog', async (dialog) => {
-      _alertMessage = dialog.message();
       await dialog.accept();
     });
 

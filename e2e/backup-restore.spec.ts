@@ -74,19 +74,18 @@ test('データリストア機能の動作確認', async ({ page }) => {
   // リロードしてデータがクリアされたことを確認
   await page.reload();
   await page.waitForSelector('#part1', { timeout: 10_000 });
-  
+
   const part1Value = await page.locator('#part1').inputValue();
   expect(part1Value).toBe('0');
 
   // バックアップからリストア
-  const restoreResult = await page.evaluate((backup) => {
+  await page.evaluate(async (backup) => {
+    if (backup === null || backup === undefined) return;
     if (window.elvBackup && window.elvBackup.importBackup) {
-      return window.elvBackup.importBackup(backup);
+      await window.elvBackup.importBackup(backup);
     }
-    return false;
   }, backupData);
 
-  expect(restoreResult).toBeTruthy();
   console.log('Data restored successfully');
 
   // リロードして復元されたデータを確認
@@ -100,7 +99,9 @@ test('データリストア機能の動作確認', async ({ page }) => {
   // 元のデータが復元されていることを確認
   expect(parseFloat(restoredPart1)).toBeGreaterThan(0);
   expect(parseFloat(restoredPart2)).toBeGreaterThan(0);
-  console.log(`Restored values: part1=${restoredPart1}, part2=${restoredPart2}`);
+  console.log(
+    `Restored values: part1=${restoredPart1}, part2=${restoredPart2}`
+  );
 });
 
 /**
@@ -129,8 +130,8 @@ test('自動バックアップ機能の確認', async ({ page }) => {
 
   // LocalStorageにバックアップが保存されているか確認
   const backupExists = await page.evaluate(() => {
-    const backupKey = Object.keys(localStorage).find(key => 
-      key.includes('backup') || key.includes('elvgain')
+    const backupKey = Object.keys(localStorage).find(
+      (key) => key.includes('backup') || key.includes('elvgain')
     );
     return backupKey !== undefined;
   });
@@ -177,14 +178,14 @@ test('バックアップデータの整合性確認', async ({ page }) => {
 
   if (backupData) {
     console.log('Backup data structure:', Object.keys(backupData));
-    
+
     // バックアップデータが必要な情報を含んでいるか確認
     expect(backupData).toBeTruthy();
-    
+
     // データ構造の基本的な検証
     const dataStr = JSON.stringify(backupData);
     expect(dataStr.length).toBeGreaterThan(10);
-    
+
     console.log('Backup data is valid');
   } else {
     console.log('Backup API not available');

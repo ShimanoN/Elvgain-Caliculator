@@ -5,18 +5,6 @@
 import { describe, it, expect, beforeEach, afterEach, vi } from 'vitest';
 
 describe('sync-status utilities', () => {
-  describe('formatTimeAgo', () => {
-    it('should format recent times as "just now"', () => {
-      const now = new Date();
-      const recent = new Date(now.getTime() - 30000); // 30 seconds ago
-
-      // We need to access the internal formatTimeAgo function
-      // Since it's not exported, we'll test the observable behavior instead
-      // This is just a placeholder structure
-      expect(true).toBe(true);
-    });
-  });
-
   describe('localStorage operations', () => {
     const LAST_SYNC_KEY = 'elv_last_sync_time';
 

@@ -46,6 +46,9 @@ let syncButton: HTMLButtonElement | null = null;
 let lastSyncEl: HTMLElement | null = null;
 let toastEl: HTMLElement | null = null;
 
+// Event handler references for cleanup
+let syncButtonHandler: (() => void) | null = null;
+
 // ============================================================
 // Utilities
 // ============================================================
@@ -153,13 +156,14 @@ async function updateSyncState(): Promise<void> {
   // Get pending count
   try {
     const pendingCount = window.elvSync!.getPendingCount();
+    const previousPendingCount = currentState.pendingCount;
     currentState.pendingCount = pendingCount;
 
     // Update status based on pending count
     if (pendingCount === 0) {
       currentState.status = 'ok';
       // Save sync time only when transitioning from pending to 0
-      if (currentState.pendingCount !== null && currentState.pendingCount > 0) {
+      if (previousPendingCount !== null && previousPendingCount > 0) {
         const now = new Date();
         saveLastSyncTime(now);
         currentState.lastSyncTime = now;
@@ -352,11 +356,13 @@ export function initSyncStatus(): void {
   currentState.lastSyncTime = getLastSyncTime();
 
   // Setup event listeners
-  syncButton.addEventListener('click', () => {
+  // Store the handler so we can properly remove it later
+  syncButtonHandler = () => {
     handleManualSync().catch((error) => {
       console.error('Manual sync handler error:', error);
     });
-  });
+  };
+  syncButton.addEventListener('click', syncButtonHandler);
 
   window.addEventListener('online', handleOnline);
   window.addEventListener('offline', handleOffline);
@@ -379,8 +385,9 @@ export function initSyncStatus(): void {
 export function cleanupSyncStatus(): void {
   stopPolling();
 
-  if (syncButton) {
-    syncButton.removeEventListener('click', handleManualSync);
+  if (syncButton && syncButtonHandler) {
+    syncButton.removeEventListener('click', syncButtonHandler);
+    syncButtonHandler = null;
   }
 
   window.removeEventListener('online', handleOnline);

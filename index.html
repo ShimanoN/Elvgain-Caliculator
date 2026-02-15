@@ -15,14 +15,17 @@
         <div
           id="sync-status-badge"
           class="sync-status-badge sync-status-badge--offline"
+          role="status"
+          aria-live="polite"
+          aria-label="Synchronization status"
         >
-          <span
+          <span aria-label="Pending items count"
             >Pending:
             <span id="sync-pending-count" class="sync-pending-count"
               >—</span
             ></span
           >
-          <span class="sync-last-time"
+          <span class="sync-last-time" aria-label="Last sync time"
             >Last: <span id="sync-last-time">—</span></span
           >
         </div>

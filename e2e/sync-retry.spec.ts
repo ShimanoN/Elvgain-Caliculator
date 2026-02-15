@@ -123,12 +123,24 @@ test.describe('同期リトライ機能', () => {
       timeout: 5000,
     });
 
+    // Get pending count before sync
+    const pendingCountBefore = await page
+      .locator('#sync-pending-count')
+      .textContent();
+
     // Click sync button
     const syncButton = page.locator('#sync-now-button');
     await syncButton.click();
 
-    // Wait for sync to complete
-    await page.waitForTimeout(2000);
+    // Wait for sync:complete event or pending count change
+    await page.waitForFunction(
+      (initialCount) => {
+        const el = document.querySelector('#sync-pending-count');
+        return !!el && el.textContent !== initialCount;
+      },
+      pendingCountBefore,
+      { timeout: 5000 }
+    );
 
     // Check if pending count is updated
     const pendingCountText = await page
@@ -143,7 +155,19 @@ test.describe('同期リトライ機能', () => {
     await page.fill('#current-date', today);
     await page.fill('#part1', '200');
     await page.locator('#part1').blur();
-    await page.waitForTimeout(1000);
+
+    // Wait for status badge to have a status class
+    await page.waitForFunction(
+      () => {
+        const badge = document.querySelector('#sync-status-badge');
+        if (!badge) {
+          return false;
+        }
+        const className = (badge as HTMLElement).className;
+        return /sync-status-badge--(ok|pending|offline|error)/.test(className);
+      },
+      { timeout: 5000 }
+    );
 
     // Check if status badge class changes
     const statusBadge = page.locator('#sync-status-badge');
